@@ -1,0 +1,633 @@
+<!DOCTYPE html><html lang="id"><head><meta charset="utf-8"><meta content="width=device-width, initial-scale=1.0" name="viewport"><meta content="web_dashboard" name="shell-type"><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"><link href="https://fonts.googleapis.com" rel="preconnect"><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"><link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400..700;1,6..72,400..700&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+          "on-surface": "#1c1c16",
+          "surface-container": "#f1eee4",
+          "inverse-surface": "#31312a",
+          "on-error-container": "#93000a",
+          "on-tertiary": "#ffffff",
+          "surface-dim": "#dddad0",
+          "surface": "#fcf9ef",
+          "error": "#ba1a1a",
+          "surface-container-high": "#ebe8de",
+          "on-tertiary-container": "#d6e9ab",
+          "secondary-fixed": "#dbe8c0",
+          "on-primary-fixed-variant": "#394d14",
+          "on-background": "#1c1c16",
+          "outline": "#75796b",
+          "on-surface-variant": "#45483c",
+          "error-container": "#ffdad6",
+          "on-secondary-fixed": "#151e06",
+          "on-secondary-container": "#5d6849",
+          "surface-tint": "#50652a",
+          "secondary-fixed-dim": "#bfcba6",
+          "tertiary": "#425223",
+          "primary-fixed": "#d2eca2",
+          "inverse-primary": "#b6d088",
+          "on-tertiary-fixed-variant": "#3d4c1e",
+          "inverse-on-surface": "#f4f1e7",
+          "on-secondary": "#ffffff",
+          "on-primary": "#ffffff",
+          "on-tertiary-fixed": "#141f00",
+          "outline-variant": "#c5c8b8",
+          "surface-bright": "#fcf9ef",
+          "surface-container-lowest": "#ffffff",
+          "secondary-container": "#dbe8c0",
+          "surface-container-low": "#f6f4ea",
+          "on-primary-fixed": "#131f00",
+          "primary-fixed-dim": "#b6d088",
+          "on-primary-container": "#d0eba1",
+          "primary": "#3e5219",
+          "on-secondary-fixed-variant": "#404b2e",
+          "surface-container-highest": "#e5e2d9",
+          "tertiary-fixed-dim": "#bbce92",
+          "tertiary-container": "#596a38",
+          "surface-variant": "#e5e2d9",
+          "on-error": "#ffffff",
+          "primary-container": "#556b2f",
+          "tertiary-fixed": "#d7eaac",
+          "secondary": "#576244",
+          "background": "#fcf9ef"
+        },
+        "borderRadius": {
+          "DEFAULT": "0.25rem",
+          "lg": "0.5rem",
+          "xl": "0.75rem",
+          "full": "9999px"
+        },
+        "spacing": {
+          "space-2xl": "4rem",
+          "space-xl": "2.5rem",
+          "space-md": "1rem",
+          "space-sm": "0.5rem",
+          "gutter-mobile": "0.75rem",
+          "space-lg": "1.5rem",
+          "margin": "2.5rem",
+          "gutter": "1.5rem",
+          "space-xs": "0.25rem",
+          "margin-mobile": "1rem"
+        },
+        "fontFamily": {
+          "headline-md": ["Newsreader"],
+          "title-md": ["Plus Jakarta Sans"],
+          "display-lg-mobile": ["Newsreader"],
+          "body-md": ["Plus Jakarta Sans"],
+          "title-sm": ["Plus Jakarta Sans"],
+          "headline-lg-mobile": ["Newsreader"],
+          "body-sm": ["Plus Jakarta Sans"],
+          "headline-lg": ["Newsreader"],
+          "display-lg": ["Newsreader"],
+          "label-sm": ["Plus Jakarta Sans"],
+          "headline-sm": ["Newsreader"],
+          "label-lg": ["Plus Jakarta Sans"],
+          "body-lg": ["Plus Jakarta Sans"],
+          "label-md": ["Plus Jakarta Sans"],
+          "title-lg": ["Plus Jakarta Sans"]
+        },
+        "fontSize": {
+          "headline-md": ["28px", {"lineHeight": "36px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+          "title-md": ["16px", {"lineHeight": "24px", "fontWeight": "600"}],
+          "display-lg-mobile": ["38px", {"lineHeight": "44px", "letterSpacing": "-0.01em", "fontWeight": "500"}],
+          "body-md": ["14px", {"lineHeight": "22px", "fontWeight": "400"}],
+          "title-sm": ["14px", {"lineHeight": "20px", "fontWeight": "600"}],
+          "headline-lg-mobile": ["28px", {"lineHeight": "34px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+          "body-sm": ["12px", {"lineHeight": "18px", "fontWeight": "400"}],
+          "headline-lg": ["36px", {"lineHeight": "44px", "letterSpacing": "-0.015em", "fontWeight": "600"}],
+          "display-lg": ["56px", {"lineHeight": "64px", "letterSpacing": "-0.02em", "fontWeight": "500"}],
+          "label-sm": ["11px", {"lineHeight": "14px", "letterSpacing": "0.04em", "fontWeight": "600"}],
+          "headline-sm": ["22px", {"lineHeight": "30px", "fontWeight": "600"}],
+          "label-lg": ["14px", {"lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "500"}],
+          "body-lg": ["16px", {"lineHeight": "26px", "fontWeight": "400"}],
+          "label-md": ["12px", {"lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "500"}],
+          "title-lg": ["20px", {"lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "600"}]
+        }
+      }
+    }
+  }</script></head><body class="bg-background font-body-md text-body-md text-on-surface antialiased selection:bg-secondary-container selection:text-on-secondary-container"><aside class="fixed left-0 top-0 h-screen w-72 bg-surface-container-low z-50 flex flex-col justify-between shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="flex flex-col"><div class="h-16 px-6 flex items-center gap-3"><img alt="Brand logo. - Primary color: #556b2f
+- Font: newsreader
+- Mode: light
+- Roundness: rounded-md
+" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1XPpLasoa0qEFnGnTpAHmbaE-Tx0XWMWwzh3T60qfRd_ke3_6uTUzD78dLLeUPsPzcwhMF51VFnNW5qhhufdAZPp918LeSv1oDCsHOZFF0eZy26T8fjYI9a3304L7fqrrlZI9edw14dxha-Ei8XyaBfrzwA_YBLMqkWJrsRbfHtBds_yqljCYCA6-3Ic8mRIZS53A2ZmS7nCMNPacjMeHzxlhw_lpjKEk4z9beeS4KUE9YEQKh9yn9QFbU"><div class="flex flex-col"><span class="font-headline-sm text-headline-sm text-primary tracking-tight">Bookself</span><span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest">Smart Archival</span></div></div><div class="px-4 py-2"><p class="px-3 mb-2 font-label-sm text-label-sm uppercase tracking-wider text-outline">Sistem Utama</p><nav class="flex flex-col gap-1" data-active-classes="bg-primary-container text-on-primary-container font-title-sm text-title-sm rounded-lg shadow-sm"><a class="flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface font-title-sm text-title-sm transition-all duration-150" data-path="dashboard-ringkasan" href="#"><span class="material-symbols-outlined text-[20px]">auto_stories</span>Dashboard Ringkasan</a><a class="flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface font-title-sm text-title-sm transition-all duration-150" data-path="sirkulasi-peminjaman" href="#"><span class="material-symbols-outlined text-[20px]">sync_alt</span>Sirkulasi &amp; Peminjaman</a><a aria-current="page" class="flex items-center gap-3 px-3.5 py-2.5 transition-all duration-150 bg-primary-container text-on-primary-container font-title-sm text-title-sm rounded-lg shadow-sm" data-path="katalog-buku" href="#"><span class="material-symbols-outlined text-[20px]">local_library</span>Katalog Buku</a><a class="flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface font-title-sm text-title-sm transition-all duration-150" data-path="rekap-laporan-denda" href="#"><span class="material-symbols-outlined text-[20px]">receipt_long</span>Rekap Laporan &amp; Denda</a><a class="flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface font-title-sm text-title-sm transition-all duration-150" data-path="data-anggota-pengguna" href="#"><span class="material-symbols-outlined text-[20px]">badge</span>Data Anggota &amp; Pengguna</a><a class="flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface font-title-sm text-title-sm transition-all duration-150" data-path="pengaturan" href="#"><span class="material-symbols-outlined text-[20px]">settings_suggest</span>Pengaturan</a></nav></div></div><div class="p-4 mx-4 mb-5 rounded-xl bg-surface-container flex flex-col gap-2"><div class="flex items-center justify-between"><div class="flex items-center gap-2"><span class="relative flex h-2 w-2"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span><span class="relative inline-flex rounded-full h-2 w-2 bg-primary"></span></span><span class="font-label-md text-label-md text-on-surface font-semibold">RFID Reader Act</span></div><span class="material-symbols-outlined text-[18px] text-primary">sensors</span></div><p class="font-body-sm text-body-sm text-on-surface-variant">Port USB-3 terhubung. Sensor pemindai rak siap.</p></div></aside><div class="pl-72"><header class="fixed top-0 left-72 right-0 h-16 bg-surface/85 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)] z-40"><div class="h-16 w-full px-8 flex items-center justify-between gap-6"><div class="flex-1 max-w-lg"><div class="relative flex items-center"><span class="material-symbols-outlined absolute left-3 text-[20px] text-outline pointer-events-none">search</span><input class="w-full pl-10 pr-12 py-2 rounded-lg bg-surface-container font-body-md text-body-md text-on-surface placeholder:text-on-surface-variant/60 focus:bg-surface-container-lowest focus:outline-none transition-all" placeholder="Cari judul buku, nomor panggil, atau ID pustaka..." type="text"><kbd class="absolute right-3 px-1.5 py-0.5 rounded bg-surface-container-high font-label-sm text-label-sm text-outline select-none">⌘K</kbd></div></div><div class="flex items-center gap-4"><button class="flex items-center gap-2 px-3.5 py-2 rounded-lg bg-primary-container text-on-primary font-label-lg text-label-lg hover:bg-primary transition-all shadow-sm" type="button"><span class="material-symbols-outlined text-[18px]">barcode_scanner</span><span>Scan Cepat RFID</span></button><button class="relative p-2 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" type="button"><span class="material-symbols-outlined text-[22px]">notifications</span><span class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-error"></span></button><div class="h-6 w-[1px] bg-outline-variant"></div><div class="flex items-center gap-3"><div class="text-right hidden sm:flex flex-col"><span class="font-title-sm text-title-sm text-on-surface leading-tight">Nurul Hidayati</span><span class="font-label-sm text-label-sm text-on-surface-variant leading-tight">Pustakawan Ahli</span></div><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></div></header><main class="w-full pt-16 bg-background min-h-screen"><div class="flex flex-col w-full">
+<!-- Top Academic Breadcrumb and Page Header -->
+<div class="px-8 pt-6 pb-6 bg-surface">
+<div class="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
+<div class="space-y-2">
+<div class="flex items-center gap-2 font-label-md text-label-md text-primary">
+<span class="font-semibold tracking-wide">Koleksi &amp; Inventaris Pustaka</span>
+<span class="text-outline-variant">•</span>
+<span class="text-on-surface-variant">Manajemen Klasifikasi Dewey Decimal (DDC)</span>
+</div>
+<h1 class="font-headline-lg text-headline-lg text-on-surface tracking-tight">
+          Katalog Koleksi &amp; Preservasi Buku
+        </h1>
+<p class="font-body-md text-body-md text-on-surface-variant max-w-2xl">
+          Repositori naskah cetak, literatur akademik, dan preservasi pustaka digital. Pemantauan real-time status sirkulasi per lokus rak.
+        </p>
+</div>
+<!-- Action Buttons with tactile aesthetic -->
+<div class="flex flex-wrap items-center gap-2.5">
+<button class="inline-flex items-center gap-2 px-3.5 py-2.5 rounded-lg bg-surface-container-high text-on-surface font-title-sm text-title-sm shadow-sm hover:bg-surface-container-highest transition-all duration-150" type="button">
+<span class="material-symbols-outlined text-[19px] text-primary">qr_code_scanner</span>
+<span>Cetak Barcode Rak</span>
+</button>
+<button class="inline-flex items-center gap-2 px-3.5 py-2.5 rounded-lg bg-surface-container-high text-on-surface font-title-sm text-title-sm shadow-sm hover:bg-surface-container-highest transition-all duration-150" type="button">
+<span class="material-symbols-outlined text-[19px] text-tertiary">upload_file</span>
+<span>Impor MARC / Excel</span>
+</button>
+<button class="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-primary text-on-primary font-title-sm text-title-sm shadow-md hover:bg-on-primary-fixed-variant hover:-translate-y-0.5 transition-all duration-150" type="button">
+<span class="material-symbols-outlined text-[20px]">add</span>
+<span>+ Tambah Buku Baru</span>
+</button>
+</div>
+</div>
+<!-- Quick Stats Bento Overview -->
+<div class="grid grid-cols-1 md:grid-cols-4 gap-4 mt-6">
+<div class="p-4 rounded-xl bg-surface-container-lowest shadow-sm flex items-center justify-between">
+<div>
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-outline">Total Judul Terdaftar</span>
+<p class="font-headline-md text-headline-md text-on-surface mt-1">14.820</p>
+<span class="font-body-sm text-body-sm text-primary font-medium">+12 judul minggu ini</span>
+</div>
+<div class="w-11 h-11 rounded-lg bg-surface-container-low flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[24px]">collections_bookmark</span>
+</div>
+</div>
+<div class="p-4 rounded-xl bg-surface-container-lowest shadow-sm flex items-center justify-between">
+<div>
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-outline">Kapasitas Rak Sentral</span>
+<p class="font-headline-md text-headline-md text-on-surface mt-1">74%</p>
+<span class="font-body-sm text-body-sm text-on-surface-variant">15/20 Rak berkapasitas padat</span>
+</div>
+<div class="w-11 h-11 rounded-lg bg-secondary-container/40 flex items-center justify-center text-on-secondary-container">
+<svg class="w-8 h-8 -rotate-90" viewBox="0 0 36 36">
+<path class="text-surface-container-high stroke-current" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke-width="3.5"></path>
+<path class="text-primary stroke-current" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke-dasharray="74, 100" stroke-linecap="round" stroke-width="3.5"></path>
+</svg>
+</div>
+</div>
+<div class="p-4 rounded-xl bg-surface-container-lowest shadow-sm flex items-center justify-between">
+<div>
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-outline">Buku dalam Peminjaman</span>
+<p class="font-headline-md text-headline-md text-secondary mt-1">2.418</p>
+<span class="font-body-sm text-body-sm text-on-surface-variant">163 pengembalian hari ini</span>
+</div>
+<div class="w-11 h-11 rounded-lg bg-surface-container-low flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined text-[24px]">sync_saved_locally</span>
+</div>
+</div>
+<div class="p-4 rounded-xl bg-surface-container-lowest shadow-sm flex items-center justify-between">
+<div>
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-outline">Stok Kritis / Restorasi</span>
+<p class="font-headline-md text-headline-md text-error mt-1">42</p>
+<span class="font-body-sm text-body-sm text-on-error-container font-medium">8 butuh perbaikan sampul</span>
+</div>
+<div class="w-11 h-11 rounded-lg bg-error-container/40 flex items-center justify-center text-error">
+<span class="material-symbols-outlined text-[24px]">healing</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Search & Catalog Filtering Toolbar -->
+<div class="px-8 py-5 bg-surface-container-low">
+<div class="flex flex-col gap-4">
+<div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+<!-- Integrated Academic Search -->
+<div class="relative flex-1 max-w-2xl">
+<span class="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-outline text-[20px]">menu_book</span>
+<input class="w-full pl-11 pr-24 py-2.5 rounded-lg bg-surface-container-lowest text-on-surface font-body-md text-body-md placeholder:text-outline shadow-sm focus:outline-none focus:bg-surface transition-all" placeholder="Cari judul buku, nama pengarang, ISBN, atau nomor panggil DDC..." type="text">
+<div class="absolute right-2.5 top-1/2 -translate-y-1/2 flex items-center gap-1.5 text-outline">
+<span class="px-2 py-0.5 rounded bg-surface-container font-label-sm text-label-sm">DDC</span>
+<span class="px-1.5 py-0.5 rounded bg-surface-container font-label-sm text-label-sm">Enter</span>
+</div>
+</div>
+<!-- Controls: Status Filter & View Toggle -->
+<div class="flex items-center gap-3">
+<div class="relative min-w-[200px]">
+<select class="w-full appearance-none pl-3.5 pr-9 py-2.5 rounded-lg bg-surface-container-lowest text-on-surface font-title-sm text-title-sm shadow-sm cursor-pointer focus:outline-none">
+<option value="all">Status: Semua Ketersediaan</option>
+<option value="ready">Tersedia di Rak</option>
+<option value="loan">Sedang Dipinjam</option>
+<option value="repair">Dalam Perbaikan/Preservasi</option>
+</select>
+<span class="material-symbols-outlined absolute right-2.5 top-1/2 -translate-y-1/2 text-outline pointer-events-none text-[18px]">expand_more</span>
+</div>
+<div class="flex items-center p-1 rounded-lg bg-surface-container shadow-inner">
+<button class="p-1.5 rounded-md bg-surface-container-lowest text-primary shadow-sm" title="Tampilan Kisi Kartu" type="button">
+<span class="material-symbols-outlined text-[19px]">grid_view</span>
+</button>
+<button class="p-1.5 rounded-md text-on-surface-variant hover:text-on-surface transition-colors" title="Tampilan Tabel Berkas" type="button">
+<span class="material-symbols-outlined text-[19px]">view_list</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Dewey Decimal Filter Tabs -->
+<div class="flex items-center gap-2 overflow-x-auto pb-1 text-on-surface">
+<button class="shrink-0 flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-primary text-on-primary font-label-md text-label-md shadow-sm" type="button">
+<span class="material-symbols-outlined text-[14px]">check</span>
+<span>Semua Kategori (14.820)</span>
+</button>
+<button class="shrink-0 px-3.5 py-1.5 rounded-full bg-surface-container text-on-surface font-label-md text-label-md hover:bg-surface-container-high transition-colors" type="button">
+          000 Karya Umum &amp; IT (1.240)
+        </button>
+<button class="shrink-0 px-3.5 py-1.5 rounded-full bg-surface-container text-on-surface font-label-md text-label-md hover:bg-surface-container-high transition-colors" type="button">
+          500 Sains Murni &amp; Matematika (3.110)
+        </button>
+<button class="shrink-0 px-3.5 py-1.5 rounded-full bg-surface-container text-on-surface font-label-md text-label-md hover:bg-surface-container-high transition-colors" type="button">
+          600 Teknologi Terapan (2.450)
+        </button>
+<button class="shrink-0 px-3.5 py-1.5 rounded-full bg-surface-container text-on-surface font-label-md text-label-md hover:bg-surface-container-high transition-colors" type="button">
+          800 Sastra &amp; Bahasa (4.890)
+        </button>
+<button class="shrink-0 px-3.5 py-1.5 rounded-full bg-surface-container text-on-surface font-label-md text-label-md hover:bg-surface-container-high transition-colors" type="button">
+          900 Sejarah &amp; Geografi (1.820)
+        </button>
+</div>
+</div>
+</div>
+<!-- Main Content Layout: Catalog Grid + Shelf Scanner Side Panel -->
+<div class="px-8 py-8 grid grid-cols-1 xl:grid-cols-12 gap-8 items-start">
+<!-- Book Cards Grid (8 cols on XL) -->
+<div class="xl:col-span-9">
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+<!-- Book Card 1 -->
+<div class="group rounded-xl bg-surface-container-lowest p-4 shadow-sm hover:shadow-md transition-all duration-200 flex flex-col justify-between">
+<div class="space-y-3">
+<div class="relative w-full aspect-[4/5] rounded-lg overflow-hidden bg-surface-container shadow-inner">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" data-alt="Classic Indonesian literature novel cover of Bumi Manusia, vintage textured parchment background with elegant earthy brown and olive lettering, archival quality academic library setting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDYwSCLc8RG-nhtF0c5ftj1gjQ1e2a0sNh5F6DhdCP3YbnxPJNAfRCVPrTrwqEgOdCUWBHwNBZMETpHZyLry84IuE6KqEdANt1VUWhse-cl0jWlgBlvaN4_QbzVcb-mQnV7p81GBW3Tvtwkg7_AezV5TAQRVViA0q8r1VLvyEaPDdEDbP1B_rs2FC68KzaLkSxZIwQzRcO5u8Bk102coFXgRk9JPLhA8xJmcWGDcne1zLlGypRk33oD">
+<div class="absolute top-2.5 left-2.5">
+<span class="inline-flex items-center px-2 py-0.5 rounded font-label-sm text-label-sm bg-surface-container-lowest/90 backdrop-blur-sm text-on-surface font-bold tracking-wider">
+                  813.01 PRAM
+                </span>
+</div>
+<div class="absolute top-2.5 right-2.5">
+<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full font-label-sm text-label-sm bg-secondary-container text-on-secondary-container font-semibold">
+<span class="w-1.5 h-1.5 rounded-full bg-primary"></span> Tersedia
+                </span>
+</div>
+</div>
+<div>
+<div class="flex items-center gap-2 text-outline font-label-sm text-label-sm">
+<span>ISBN 978-979-973-12-0</span>
+<span>•</span>
+<span class="text-primary font-medium">RAK-04B Sastra</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface mt-1 line-clamp-1 leading-snug">
+                Bumi Manusia (Tetralogi Buru)
+              </h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">Pramoedya Ananta Toer</p>
+</div>
+<div class="p-2.5 rounded-lg bg-surface-container-low flex items-center justify-between font-label-md text-label-md">
+<span class="text-on-surface-variant">Ketersediaan Fisik:</span>
+<span class="font-semibold text-primary">4 dari 6 Eks.</span>
+</div>
+</div>
+<div class="pt-4 mt-2 flex items-center gap-2">
+<button class="flex-1 py-2 rounded-lg bg-primary-container text-on-primary font-title-sm text-title-sm hover:bg-primary transition-colors flex items-center justify-center gap-1.5" type="button">
+<span class="material-symbols-outlined text-[17px]">sync_alt</span>
+<span>Pinjamkan Kilat</span>
+</button>
+<button class="p-2 rounded-lg bg-surface-container-high text-on-surface hover:bg-surface-container-highest transition-colors" title="Detail Bibliografi" type="button">
+<span class="material-symbols-outlined text-[19px]">info</span>
+</button>
+</div>
+</div>
+<!-- Book Card 2 -->
+<div class="group rounded-xl bg-surface-container-lowest p-4 shadow-sm hover:shadow-md transition-all duration-200 flex flex-col justify-between">
+<div class="space-y-3">
+<div class="relative w-full aspect-[4/5] rounded-lg overflow-hidden bg-surface-container shadow-inner">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" data-alt="University calculus and analytical geometry textbook cover in deep slate green and ivory, geometric formulas and coordinate curves in academic design style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAEWmJ9Xzgi5UhSQL7-FhLAUQu5M2AteqglUDIkeT-2H7OJqRM57F9HRBSKf4pWyPd16dQLONoIuv-hCkb5rWJCzAthZz3t0tD_5K2dpE0s2nnO2MmbirmlnaVksVAW_z341CuofcmslyHZinu3Od7r2EuMLwZAkAePy-8YVB6YGHMvQb6Vd9qnNqyGJvtlDjw48lAGNJlhO2vGHJHzcBB-S8n0PLkSWFxKrD7pW66Vxebg1Fw5ST9X">
+<div class="absolute top-2.5 left-2.5">
+<span class="inline-flex items-center px-2 py-0.5 rounded font-label-sm text-label-sm bg-surface-container-lowest/90 backdrop-blur-sm text-on-surface font-bold tracking-wider">
+                  515.35 PUR k
+                </span>
+</div>
+<div class="absolute top-2.5 right-2.5">
+<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full font-label-sm text-label-sm bg-secondary-fixed text-on-secondary-fixed font-semibold">
+<span class="w-1.5 h-1.5 rounded-full bg-tertiary"></span> Stok Menipis
+                </span>
+</div>
+</div>
+<div>
+<div class="flex items-center gap-2 text-outline font-label-sm text-label-sm">
+<span>ISBN 978-013-081-13-1</span>
+<span>•</span>
+<span class="text-primary font-medium">RAK-02A Sains</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface mt-1 line-clamp-1 leading-snug">
+                Kalkulus Lanjut dan Geometri
+              </h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">Edwin J. Purcell &amp; Dale Varberg</p>
+</div>
+<div class="p-2.5 rounded-lg bg-surface-container-low flex items-center justify-between font-label-md text-label-md">
+<span class="text-on-surface-variant">Ketersediaan Fisik:</span>
+<span class="font-semibold text-secondary">1 dari 4 Eks. (Kritis)</span>
+</div>
+</div>
+<div class="pt-4 mt-2 flex items-center gap-2">
+<button class="flex-1 py-2 rounded-lg bg-primary-container text-on-primary font-title-sm text-title-sm hover:bg-primary transition-colors flex items-center justify-center gap-1.5" type="button">
+<span class="material-symbols-outlined text-[17px]">sync_alt</span>
+<span>Pinjamkan Kilat</span>
+</button>
+<button class="p-2 rounded-lg bg-surface-container-high text-on-surface hover:bg-surface-container-highest transition-colors" title="Detail Bibliografi" type="button">
+<span class="material-symbols-outlined text-[19px]">info</span>
+</button>
+</div>
+</div>
+<!-- Book Card 3 -->
+<div class="group rounded-xl bg-surface-container-lowest p-4 shadow-sm hover:shadow-md transition-all duration-200 flex flex-col justify-between">
+<div class="space-y-3">
+<div class="relative w-full aspect-[4/5] rounded-lg overflow-hidden bg-surface-container shadow-inner">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" data-alt="Clean Architecture software engineering book jacket with minimalist technical typography, crisp ivory paper tone and structural compass diagrams." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDkyOsRKQONys-S-xw-0X0QruD0cdDM__uyRgEvEu4KMNjPUV2mmooRII1pU-rUdXZdVUqWnBTfBmz8-S1dpbtffzr3sQrNyWObyRExPdzj2_xiNstNb0hxgYZ75yitL-lVLMVzFXIjWf3IKxSZ0qV2rU0rNV0jr76TrGa-t9VBe6TXSzSgAbtpXUvTyeoRZhDamjjErqJ1zv0rAVvVUwP088svsCLlD8AJeMC4ZCjk1jkXBWxuo4Ja">
+<div class="absolute top-2.5 left-2.5">
+<span class="inline-flex items-center px-2 py-0.5 rounded font-label-sm text-label-sm bg-surface-container-lowest/90 backdrop-blur-sm text-on-surface font-bold tracking-wider">
+                  005.1 MAR c
+                </span>
+</div>
+<div class="absolute top-2.5 right-2.5">
+<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full font-label-sm text-label-sm bg-secondary-container text-on-secondary-container font-semibold">
+<span class="w-1.5 h-1.5 rounded-full bg-primary"></span> Tersedia
+                </span>
+</div>
+</div>
+<div>
+<div class="flex items-center gap-2 text-outline font-label-sm text-label-sm">
+<span>ISBN 978-013-449-41-6</span>
+<span>•</span>
+<span class="text-primary font-medium">RAK-01IT Komputer</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface mt-1 line-clamp-1 leading-snug">
+                Clean Architecture: Craftsman Guide
+              </h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">Robert C. Martin (Uncle Bob)</p>
+</div>
+<div class="p-2.5 rounded-lg bg-surface-container-low flex items-center justify-between font-label-md text-label-md">
+<span class="text-on-surface-variant">Ketersediaan Fisik:</span>
+<span class="font-semibold text-primary">3 dari 3 Eks. Lengkap</span>
+</div>
+</div>
+<div class="pt-4 mt-2 flex items-center gap-2">
+<button class="flex-1 py-2 rounded-lg bg-primary-container text-on-primary font-title-sm text-title-sm hover:bg-primary transition-colors flex items-center justify-center gap-1.5" type="button">
+<span class="material-symbols-outlined text-[17px]">sync_alt</span>
+<span>Pinjamkan Kilat</span>
+</button>
+<button class="p-2 rounded-lg bg-surface-container-high text-on-surface hover:bg-surface-container-highest transition-colors" title="Detail Bibliografi" type="button">
+<span class="material-symbols-outlined text-[19px]">info</span>
+</button>
+</div>
+</div>
+<!-- Book Card 4 -->
+<div class="group rounded-xl bg-surface-container-lowest p-4 shadow-sm hover:shadow-md transition-all duration-200 flex flex-col justify-between">
+<div class="space-y-3">
+<div class="relative w-full aspect-[4/5] rounded-lg overflow-hidden bg-surface-container shadow-inner">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" data-alt="Molecular biology textbook cover featuring biological cell membrane illustration in botanical olive and deep warm earth tones, academic publication." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDVDZD4NqeWGWjtTGFNdIcn_Xhu-0W1j25pLbdWprZHUyX8Hg-1Kwb9WFXK7k7yJbIsyClAYnnRj0RIldyenhJ4nwnjQPP87FpT4xd9-FCMOMpwEIAHBHBI8pv1QP_IZLzf-_pixpuH8Y9-ZXEt3DQdGT6Q-gAMuOsefQ1iNi6VC4nUKeCiGUNoczPvmLa7P_04tQuDOsStvMYXAZFxRCRNLGMIqoEmIFDHPLb6ihiV_MHzkV_M8VuZ">
+<div class="absolute top-2.5 left-2.5">
+<span class="inline-flex items-center px-2 py-0.5 rounded font-label-sm text-label-sm bg-surface-container-lowest/90 backdrop-blur-sm text-on-surface font-bold tracking-wider">
+                  572.8 ALB b
+                </span>
+</div>
+<div class="absolute top-2.5 right-2.5">
+<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full font-label-sm text-label-sm bg-error-container text-on-error-container font-semibold">
+<span class="w-1.5 h-1.5 rounded-full bg-error"></span> Dipinjam Penuh
+                </span>
+</div>
+</div>
+<div>
+<div class="flex items-center gap-2 text-outline font-label-sm text-label-sm">
+<span>ISBN 978-081-534-43-2</span>
+<span>•</span>
+<span class="text-primary font-medium">RAK-03 Hayati</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface mt-1 line-clamp-1 leading-snug">
+                Biologi Molekuler Sel (Edisi VI)
+              </h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">Bruce Alberts, Alexander Johnson et al.</p>
+</div>
+<div class="p-2.5 rounded-lg bg-surface-container-low flex items-center justify-between font-label-md text-label-md">
+<span class="text-on-surface-variant">Ketersediaan Fisik:</span>
+<span class="font-semibold text-error">0 dari 5 Eks. (Dipinjam)</span>
+</div>
+</div>
+<div class="pt-4 mt-2 flex items-center gap-2">
+<button class="flex-1 py-2 rounded-lg bg-surface-container-high text-on-surface-variant font-title-sm text-title-sm hover:bg-surface-container-highest transition-colors flex items-center justify-center gap-1.5" type="button">
+<span class="material-symbols-outlined text-[17px]">notifications_active</span>
+<span>Reservasi Antrean</span>
+</button>
+<button class="p-2 rounded-lg bg-surface-container-high text-on-surface hover:bg-surface-container-highest transition-colors" title="Detail Bibliografi" type="button">
+<span class="material-symbols-outlined text-[19px]">info</span>
+</button>
+</div>
+</div>
+<!-- Book Card 5 -->
+<div class="group rounded-xl bg-surface-container-lowest p-4 shadow-sm hover:shadow-md transition-all duration-200 flex flex-col justify-between">
+<div class="space-y-3">
+<div class="relative w-full aspect-[4/5] rounded-lg overflow-hidden bg-surface-container shadow-inner">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" data-alt="Indonesian history and diplomacy archival monograph cover, historic sepia photograph of round table conference with fine serif typography in deep forest olive." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBHcVkowXo_0NCCdyxhpQojjvHpmtkeo8qvyxpaXiBXmeQWj3KwJ63hZd5H4B2k1rOjEK8IFy3YPRnS16wdHtnXaE4oGOPZ0Nc82sOCxQgTI6Q77xU7jSqyV5Mp4ibjKYjQ54iQT7QRyIHXZVkHQH8nEhqdXQF3LK9mVXAx7AOm3maETxKZZmBuqKlcCTA0QqfDZL3DDDMj6VJU36TMDGhcXdLAdz_y6dm0BjEVZZ4S95Iwc1DW_8V7">
+<div class="absolute top-2.5 left-2.5">
+<span class="inline-flex items-center px-2 py-0.5 rounded font-label-sm text-label-sm bg-surface-container-lowest/90 backdrop-blur-sm text-on-surface font-bold tracking-wider">
+                  959.8 AGU s
+                </span>
+</div>
+<div class="absolute top-2.5 right-2.5">
+<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full font-label-sm text-label-sm bg-secondary-container text-on-secondary-container font-semibold">
+<span class="w-1.5 h-1.5 rounded-full bg-primary"></span> Tersedia
+                </span>
+</div>
+</div>
+<div>
+<div class="flex items-center gap-2 text-outline font-label-sm text-label-sm">
+<span>ISBN 978-979-444-21-3</span>
+<span>•</span>
+<span class="text-primary font-medium">RAK-05 Sejarah</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface mt-1 line-clamp-1 leading-snug">
+                Diplomasi Kemerdekaan RI
+              </h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">Ide Anak Agung Gde Agung</p>
+</div>
+<div class="p-2.5 rounded-lg bg-surface-container-low flex items-center justify-between font-label-md text-label-md">
+<span class="text-on-surface-variant">Ketersediaan Fisik:</span>
+<span class="font-semibold text-primary">2 dari 3 Eks. Tersedia</span>
+</div>
+</div>
+<div class="pt-4 mt-2 flex items-center gap-2">
+<button class="flex-1 py-2 rounded-lg bg-primary-container text-on-primary font-title-sm text-title-sm hover:bg-primary transition-colors flex items-center justify-center gap-1.5" type="button">
+<span class="material-symbols-outlined text-[17px]">sync_alt</span>
+<span>Pinjamkan Kilat</span>
+</button>
+<button class="p-2 rounded-lg bg-surface-container-high text-on-surface hover:bg-surface-container-highest transition-colors" title="Detail Bibliografi" type="button">
+<span class="material-symbols-outlined text-[19px]">info</span>
+</button>
+</div>
+</div>
+<!-- Book Card 6 -->
+<div class="group rounded-xl bg-surface-container-lowest p-4 shadow-sm hover:shadow-md transition-all duration-200 flex flex-col justify-between">
+<div class="space-y-3">
+<div class="relative w-full aspect-[4/5] rounded-lg overflow-hidden bg-surface-container shadow-inner">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" data-alt="Artificial Intelligence modern approach textbook cover, deep olive and cream geometric neural graph lines with classic academic typesetting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBOdvdr6pglrD--nnMjlBwOp8oiv4bpyDbZXacQEtgV88bWCJllF3XJjGL7ClUqR89EFieD90NF1134RTbpCGEguhZBrlwYPZjo1VmUra8zHwtVHHmQjYIfJzzmr9-unLJqALPY7-JOlEF1EcqufD4ZCXY1Enzg9zU_msA-M38Io7zyxRZ-UKMQFduOLZGR-EaPhc5zY0Jf-OvDfXrdrFz3u5IIY5FVJRex9YfIPvpVmAfl19fDwmWT">
+<div class="absolute top-2.5 left-2.5">
+<span class="inline-flex items-center px-2 py-0.5 rounded font-label-sm text-label-sm bg-surface-container-lowest/90 backdrop-blur-sm text-on-surface font-bold tracking-wider">
+                  006.3 RUS a
+                </span>
+</div>
+<div class="absolute top-2.5 right-2.5">
+<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full font-label-sm text-label-sm bg-secondary-container text-on-secondary-container font-semibold">
+<span class="w-1.5 h-1.5 rounded-full bg-primary"></span> Tersedia
+                </span>
+</div>
+</div>
+<div>
+<div class="flex items-center gap-2 text-outline font-label-sm text-label-sm">
+<span>ISBN 978-013-604-25-9</span>
+<span>•</span>
+<span class="text-primary font-medium">RAK-01IT Komputer</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface mt-1 line-clamp-1 leading-snug">
+                Kecerdasan Buatan &amp; Python
+              </h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">Stuart Russell &amp; Peter Norvig</p>
+</div>
+<div class="p-2.5 rounded-lg bg-surface-container-low flex items-center justify-between font-label-md text-label-md">
+<span class="text-on-surface-variant">Ketersediaan Fisik:</span>
+<span class="font-semibold text-primary">5 dari 5 Eks. Tersedia</span>
+</div>
+</div>
+<div class="pt-4 mt-2 flex items-center gap-2">
+<button class="flex-1 py-2 rounded-lg bg-primary-container text-on-primary font-title-sm text-title-sm hover:bg-primary transition-colors flex items-center justify-center gap-1.5" type="button">
+<span class="material-symbols-outlined text-[17px]">sync_alt</span>
+<span>Pinjamkan Kilat</span>
+</button>
+<button class="p-2 rounded-lg bg-surface-container-high text-on-surface hover:bg-surface-container-highest transition-colors" title="Detail Bibliografi" type="button">
+<span class="material-symbols-outlined text-[19px]">info</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Pagination Strip -->
+<div class="mt-8 flex flex-col sm:flex-row items-center justify-between gap-4 p-4 rounded-xl bg-surface-container-lowest shadow-sm">
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+          Menampilkan <span class="font-semibold text-on-surface">1 - 6</span> dari <span class="font-semibold text-on-surface">14.820</span> eksemplar
+        </p>
+<div class="flex items-center gap-1.5">
+<button class="p-2 rounded-lg text-outline hover:bg-surface-container transition-colors disabled:opacity-40" disabled="" type="button">
+<span class="material-symbols-outlined text-[18px]">chevron_left</span>
+</button>
+<button class="w-8 h-8 rounded-lg bg-primary text-on-primary font-label-md text-label-md font-semibold" type="button">1</button>
+<button class="w-8 h-8 rounded-lg text-on-surface hover:bg-surface-container font-label-md text-label-md transition-colors" type="button">2</button>
+<button class="w-8 h-8 rounded-lg text-on-surface hover:bg-surface-container font-label-md text-label-md transition-colors" type="button">3</button>
+<span class="px-1 text-outline">...</span>
+<button class="w-8 h-8 rounded-lg text-on-surface hover:bg-surface-container font-label-md text-label-md transition-colors" type="button">247</button>
+<button class="p-2 rounded-lg text-on-surface hover:bg-surface-container transition-colors" type="button">
+<span class="material-symbols-outlined text-[18px]">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Shelf Management & Scanner Side Drawer (3 cols on XL) -->
+<div class="xl:col-span-3 space-y-6">
+<!-- Rapid Barcode Scanner Box -->
+<div class="p-5 rounded-2xl bg-surface-container-lowest shadow-sm space-y-4">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[22px]">barcode_scanner</span>
+<span class="font-title-md text-title-md text-on-surface">Audit Kilat Rak</span>
+</div>
+<span class="px-2 py-0.5 rounded bg-primary-fixed text-on-primary-fixed font-label-sm text-label-sm font-semibold">Aktif</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+          Arahkan barcode scanner nirkabel atau masukkan tag RFID buku untuk verifikasi lokasi rak dan ketersediaan seketika.
+        </p>
+<div class="relative">
+<input class="w-full px-3.5 py-2.5 rounded-lg bg-surface-container-low text-on-surface font-body-sm text-body-sm focus:outline-none focus:bg-surface focus:shadow-sm transition-all" id="quickScannerInput" placeholder="Scan Barcode / RFID Tag..." type="text">
+<span class="material-symbols-outlined absolute right-2.5 top-1/2 -translate-y-1/2 text-outline text-[18px]">sensors</span>
+</div>
+<button class="w-full py-2.5 rounded-lg bg-primary text-on-primary font-title-sm text-title-sm shadow-sm hover:bg-on-primary-fixed-variant transition-colors flex items-center justify-center gap-2" type="button">
+<span class="material-symbols-outlined text-[18px]">document_scanner</span>
+<span>Validasi Posisi Rak</span>
+</button>
+</div>
+<!-- Capacity & Shelf Occupancy Visualizer -->
+<div class="p-5 rounded-2xl bg-surface-container-lowest shadow-sm space-y-4">
+<div class="flex items-center justify-between">
+<span class="font-title-md text-title-md text-on-surface">Distribusi Rak Utama</span>
+<span class="font-label-sm text-label-sm text-outline">20 Unit</span>
+</div>
+<div class="space-y-3">
+<!-- Item RAK-01 -->
+<div class="space-y-1">
+<div class="flex justify-between font-label-sm text-label-sm">
+<span class="font-semibold text-on-surface">RAK-01 (IT &amp; Rekayasa)</span>
+<span class="text-primary font-bold">92% Terisi</span>
+</div>
+<div class="w-full h-2 rounded-full bg-surface-container">
+<div class="h-2 rounded-full bg-primary" style="width: 92%"></div>
+</div>
+</div>
+<!-- Item RAK-02 -->
+<div class="space-y-1">
+<div class="flex justify-between font-label-sm text-label-sm">
+<span class="font-semibold text-on-surface">RAK-02 (Sains Murni &amp; Mat)</span>
+<span class="text-primary font-bold">85% Terisi</span>
+</div>
+<div class="w-full h-2 rounded-full bg-surface-container">
+<div class="h-2 rounded-full bg-primary" style="width: 85%"></div>
+</div>
+</div>
+<!-- Item RAK-03 -->
+<div class="space-y-1">
+<div class="flex justify-between font-label-sm text-label-sm">
+<span class="font-semibold text-on-surface">RAK-03 (Biologi &amp; Medis)</span>
+<span class="text-secondary font-bold">68% Terisi</span>
+</div>
+<div class="w-full h-2 rounded-full bg-surface-container">
+<div class="h-2 rounded-full bg-secondary" style="width: 68%"></div>
+</div>
+</div>
+<!-- Item RAK-04 -->
+<div class="space-y-1">
+<div class="flex justify-between font-label-sm text-label-sm">
+<span class="font-semibold text-on-surface">RAK-04 (Sastra &amp; Bahasa)</span>
+<span class="text-primary font-bold">78% Terisi</span>
+</div>
+<div class="w-full h-2 rounded-full bg-surface-container">
+<div class="h-2 rounded-full bg-primary" style="width: 78%"></div>
+</div>
+</div>
+<!-- Item RAK-05 -->
+<div class="space-y-1">
+<div class="flex justify-between font-label-sm text-label-sm">
+<span class="font-semibold text-on-surface">RAK-05 (Sejarah &amp; Budaya)</span>
+<span class="text-secondary font-bold">45% Terisi</span>
+</div>
+<div class="w-full h-2 rounded-full bg-surface-container">
+<div class="h-2 rounded-full bg-tertiary-container" style="width: 45%"></div>
+</div>
+</div>
+</div>
+<div class="pt-2">
+<a class="inline-flex items-center gap-1.5 font-label-md text-label-md text-primary font-semibold hover:underline" href="#">
+<span>Lihat Denah Visual Rak Fisik</span>
+<span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+</a>
+</div>
+</div>
+<!-- Preserved & Rare Archives Notice -->
+<div class="p-4 rounded-xl bg-surface-container-high/60 space-y-2.5">
+<div class="flex items-center gap-2 text-tertiary">
+<span class="material-symbols-outlined text-[20px]">verified</span>
+<span class="font-title-sm text-title-sm font-semibold">Protokol Preservasi</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+          Ruang Khusus Arsip Kuno (Lantai 3) memerlukan izin otentikasi kurator pustaka sebelum peminjaman fisik dapat divalidasi.
+        </p>
+<div class="pt-1 flex items-center justify-between text-outline font-label-sm text-label-sm">
+<span>Kelembapan: 48% RH</span>
+<span>Suhu: 19.5°C</span>
+</div>
+</div>
+</div>
+</div>
+</div></main></div></body></html>
