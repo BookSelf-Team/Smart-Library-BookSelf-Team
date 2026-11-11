@@ -127,7 +127,9 @@ Response berisi daftar buku yang masih memiliki stok:
       "tahun_terbit": 1980,
       "jumlah_stok": 6,
       "sinopsis": null,
-      "cover_image": null
+      "cover_image": null,
+      "created_at": "2025-01-01T00:00:00.000000Z",
+      "updated_at": "2025-01-01T00:00:00.000000Z"
     }
   ]
 }
@@ -195,7 +197,7 @@ cp .env.example .env
 php artisan key:generate
 ```
 
-Atur minimal variabel berikut di `.env`:
+Atur minimal variabel berikut di `.env`. Untuk SQLite, hapus atau komentari `DB_HOST`, `DB_PORT`, `DB_USERNAME`, dan `DB_PASSWORD`, lalu isi `DB_DATABASE` dengan path absolut ke file database proyek ini:
 
 ```env
 APP_NAME="Bookself"
@@ -204,14 +206,21 @@ APP_DEBUG=true
 APP_URL=http://localhost:8000
 
 DB_CONNECTION=sqlite
-# Untuk database lain, sesuaikan DB_HOST, DB_PORT, DB_DATABASE,
-# DB_USERNAME, dan DB_PASSWORD.
+DB_DATABASE=/absolute/path/to/smart_library/database/database.sqlite
 
 SESSION_DRIVER=database
 CACHE_STORE=database
 QUEUE_CONNECTION=database
 FILESYSTEM_DISK=local
 ```
+
+Untuk SQLite, buat file database terlebih dahulu:
+
+```bash
+touch database/database.sqlite
+```
+
+Untuk MySQL/MariaDB/PostgreSQL, ganti `DB_CONNECTION` dan isi `DB_HOST`, `DB_PORT`, `DB_DATABASE`, `DB_USERNAME`, serta `DB_PASSWORD` sesuai environment Anda.
 
 Jalankan migrasi dan seed data:
 
@@ -230,6 +239,29 @@ npm run dev
 ```
 
 Aplikasi dapat diakses melalui URL yang tertera di `APP_URL`, biasanya `http://localhost:8000`.
+
+### Deployment Produksi
+
+Untuk environment produksi, pastikan minimal:
+
+```env
+APP_ENV=production
+APP_DEBUG=false
+APP_URL=https://domain-anda.example
+```
+
+Lalu jalankan:
+
+```bash
+php artisan migrate --force
+php artisan storage:link
+npm run build
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
+```
+
+Jalankan queue worker jika aplikasi mulai menggunakan queue/job.
 
 ### Akun Seed Development
 
@@ -303,6 +335,8 @@ Agar dokumentasi sesuai kondisi kode saat ini:
 - Beberapa kartu metrik pada dashboard admin dan rekomendasi pada dashboard anggota masih memakai data contoh/statik dan perlu dihubungkan ke data operasional sebelum produksi.
 - Field `kelas` dan beberapa tanggal keanggotaan pada tampilan anggota masih menggunakan nilai default/placeholder.
 - Endpoint `GET /api/books` saat ini bersifat publik dan tidak memiliki pagination; tambahkan autentikasi dan rate limiting jika API akan dipakai secara luas.
+- Peminjaman mandiri anggota memeriksa kuota dan stok, tetapi aturan blokir pinjaman terlambat serta pencegahan meminjam judul yang sama saat ini baru ditegakkan pada alur peminjaman oleh staf.
+- Backend belum membatasi jumlah atau periode perpanjangan pinjaman; saat ini pinjaman aktif dapat diperpanjang +7 hari selama belum dikembalikan.
 - Jangan commit `.env`. File `.env.example` idealnya hanya berisi placeholder, bukan kredensial database nyata.
 
 ## Lisensi
