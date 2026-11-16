@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\Book;
+use App\Models\Fine;
 use App\Models\Loan;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\View\View;
 
 class DashboardController extends Controller
@@ -50,6 +52,25 @@ class DashboardController extends Controller
     {
         $this->authorize('is-staff');
 
+        // KPI ringkasan operasional.
+        $stats = [
+            'total_buku' => (int) Book::sum('jumlah_stok'),
+            'sedang_dipinjam' => Loan::query()->active()->count(),
+            'lewat_tempo' => Loan::query()->overdue()->count(),
+            'denda_belum_lunas' => (int) Fine::query()
+                ->whereIn('status_pembayaran', ['BELUM', 'UNPAID'])
+                ->sum('nominal'),
+        ];
+
+        // Rekap agregat: jumlah peminjaman dikelompokkan per status.
+        $rekapPinjaman = Loan::query()
+            ->selectRaw('status, COUNT(*) as total')
+            ->groupBy('status')
+            ->pluck('total', 'status');
+
+        // Rekap agregat: total nominal denda dikelompokkan per status pembayaran.
+        $rekapDenda = $this->rekapDendaPerStatus();
+
         $loans = Loan::query()
             ->with(['user', 'book'])
             ->orderByDesc('tanggal_pinjam')
@@ -57,7 +78,26 @@ class DashboardController extends Controller
             ->limit(5)
             ->get();
 
-        return view('admin.dashboard', compact('loans'));
+        return view('admin.dashboard', compact('loans', 'stats', 'rekapPinjaman', 'rekapDenda'));
+    }
+
+    /**
+     * Rekap denda: COUNT dan SUM(nominal) dikelompokkan per status pembayaran.
+     *
+     * @return Collection<string, array{jumlah: int, total: int}>
+     */
+    private function rekapDendaPerStatus(): Collection
+    {
+        return Fine::query()
+            ->selectRaw('status_pembayaran, COUNT(*) as jumlah, SUM(nominal) as total')
+            ->groupBy('status_pembayaran')
+            ->get()
+            ->mapWithKeys(fn (Fine $fine): array => [
+                $fine->status_pembayaran => [
+                    'jumlah' => (int) $fine->jumlah,
+                    'total' => (int) $fine->total,
+                ],
+            ]);
     }
 
     // --- Menampilkan halaman Tambah Buku ---

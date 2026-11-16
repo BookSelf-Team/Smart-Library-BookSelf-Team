@@ -38,7 +38,7 @@
                 <div class="flex flex-col">
                     <span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Inventaris Koleksi</span>
                     <div class="flex items-baseline gap-2 mt-1">
-                        <span class="font-headline-lg text-headline-lg font-bold text-on-surface">4.820</span>
+                        <span class="font-headline-lg text-headline-lg font-bold text-on-surface">{{ number_format($stats['total_buku'], 0, ',', '.') }}</span>
                         <span class="font-label-md text-label-md text-on-surface-variant">Buku Fisik</span>
                     </div>
                 </div>
@@ -53,7 +53,7 @@
                 <div class="flex flex-col">
                     <span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Sirkulasi Aktif</span>
                     <div class="flex items-baseline gap-2 mt-1">
-                        <span class="font-headline-lg text-headline-lg font-bold text-on-surface">142</span>
+                        <span class="font-headline-lg text-headline-lg font-bold text-on-surface">{{ number_format($stats['sedang_dipinjam'], 0, ',', '.') }}</span>
                         <span class="font-label-md text-label-md text-on-surface-variant">Dipinjam</span>
                     </div>
                 </div>
@@ -68,7 +68,7 @@
                 <div class="flex flex-col">
                     <span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Perhatian Khusus</span>
                     <div class="flex items-baseline gap-2 mt-1">
-                        <span class="font-headline-lg text-headline-lg font-bold text-error">9</span>
+                        <span class="font-headline-lg text-headline-lg font-bold text-error">{{ number_format($stats['lewat_tempo'], 0, ',', '.') }}</span>
                         <span class="font-label-md text-label-md text-error">Lewat Tempo</span>
                     </div>
                 </div>
@@ -83,7 +83,7 @@
                 <div class="flex flex-col">
                     <span class="font-label-sm text-label-sm text-on-primary-container/80 uppercase tracking-wider">Kas Denda Sirkulasi</span>
                     <div class="flex items-baseline gap-2 mt-1">
-                        <span class="font-headline-lg text-headline-lg font-bold text-on-primary-container">Rp 385.000</span>
+                        <span class="font-headline-lg text-headline-lg font-bold text-on-primary-container">Rp {{ number_format($stats['denda_belum_lunas'], 0, ',', '.') }}</span>
                     </div>
                 </div>
                 <div class="w-11 h-11 rounded-lg bg-on-primary-container/15 text-on-primary-container flex items-center justify-center">
