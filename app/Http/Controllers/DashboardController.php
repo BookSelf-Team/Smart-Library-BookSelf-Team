@@ -41,6 +41,11 @@ class DashboardController extends Controller
         ]);
     }
 
+    public function show(Book $book): View
+    {
+        return view('siswa.detail-buku', compact('book'));
+    }
+
     public function adminDashboard()
     {
         $this->authorize('is-staff');

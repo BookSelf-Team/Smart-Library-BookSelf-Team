@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Siswa;
 
 use App\Http\Controllers\Controller;
+use App\Models\Book;
 use App\Models\Loan;
 use App\Models\Setting;
 use Illuminate\Http\Request;
@@ -74,12 +75,18 @@ class DashboardController extends Controller
             }
         }
 
-        $recommendations = [
-            ['id' => 1, 'cover' => 'https://lh3.googleusercontent.com/aida-public/AB6AXuD84yGF0R1QsoYfxz0mYgRXEXcGd_8EqyXASfN6K90zXJ5Z-R_BLkAaUXavB0GqJV1QoWZrWCVEBsgv10yzupt4WV4gKX51JFOMRy1gsw1RhffK5sdYeOKRhtZIp7pWQN1FY9qfDld9jEMVjN8NzEYr9R0A8zd0hq1mM4_U64-sBd9Iq0Ar6jKYccQ1s_rY0_EFr1zcDx7vn87gH9Oz4kuRfonz8W6cmeaucoKvn256zkjB8-QHt0sC', 'title' => 'Pulang',                   'author' => 'Tere Liye',      'kategori' => 'Fiksi Sastra', 'stok' => 6],
-            ['id' => 2, 'cover' => 'https://lh3.googleusercontent.com/aida-public/AB6AXuDVxOSNSMMi7YU6FPqkSo0cF5KqINyuXigImtsLXUrGFMOIIBDLPt9Lvub5YoECX0w6dxZIn9MbKoF1_2pMMyS-1kgjoAw2IVTfXrDhLvzOFF5Z3AVOKl4_4GqYFq0BOXt20TQV_XpfUrSDB3npYsjbFN-9-6SQhfyiYehFZy5lDpu3lgxRGVMs2j-TaruFwBo9DRq69KbJlZR7xd6Ww9h1yR3wmhCqBDZ484mBOUIH6rIJtbW2lHLx', 'title' => 'Kosmos',                   'author' => 'Carl Sagan',     'kategori' => 'Sains & Fisika', 'stok' => 1],
-            ['id' => 3, 'cover' => 'https://lh3.googleusercontent.com/aida-public/AB6AXuBG60bbIeATraRGMZj5UAVUVjyx1JefgeIj1IGEHfyzH7_8BEUlQE3modfl36UN23q1Sjg7uSaAoLiJ4Yc9B_5HguttW69HM23RLsMG-0Hht6bFkHtblHG0Ad-4tMpXGjsA2_mFU3XK5OZE1OQv1Wv6RtfdtI5F4QBCm3NBb1LZxBejyu7QJZCZoSKHyxL9vSpWFQwzKq8AnADFBMgmnNZJCshwKSVs46cfax_gd5yeCgnWX3nM1osD', 'title' => 'Nusantara: Sejarah Indonesia', 'author' => 'Bernard H. M. Vlekke', 'kategori' => 'Sejarah', 'stok' => 4],
-            ['id' => 4, 'cover' => 'https://lh3.googleusercontent.com/aida-public/AB6AXuB02E1m4HK_VbHwVVwE-saAPyXrFVOlLIPovKJ9cXV2m45WSMroxk-f71hO3FCplm0CZzHDEC8FseXzQjvzLwFL9cmQImAsjPJEDXfLYgQUqlARR1wgvkL7mwqpM8pxOuy4LOMv2Wrz2g5fuOChOR3VeptZrByTM_vIXw4yn04eWbrz5Kp0712j3YD3b0EdTJIXdXVI6gYJLpKNcgYRf4iwaviNBVkBSTdK7wO7pgzf8RU32JcyJukz', 'title' => 'Kecerdasan Buatan',        'author' => 'Stuart Russell', 'kategori' => 'Teknologi', 'stok' => 2],
-        ];
+        $recommendations = Book::query()
+            ->orderByDesc('created_at')
+            ->limit(4)
+            ->get()
+            ->map(fn (Book $book): array => [
+                'id' => $book->getKey(),
+                'cover' => $book->coverUrl(),
+                'title' => $book->judul,
+                'author' => $book->pengarang,
+                'kategori' => 'Koleksi',
+                'stok' => $book->jumlah_stok,
+            ]);
 
         return view('siswa.dashboard', compact('siswa', 'loans', 'stats', 'notifications', 'recommendations', 'dendaPerHari'));
     }

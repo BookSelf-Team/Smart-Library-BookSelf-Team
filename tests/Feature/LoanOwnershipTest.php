@@ -152,14 +152,15 @@ class LoanOwnershipTest extends TestCase
         $ownBook = Book::factory()->create(['judul' => 'Buku Milik Sendiri']);
         $otherBook = Book::factory()->create(['judul' => 'Buku Milik Orang Lain']);
 
-        Loan::factory()->create(['user_id' => $owner->id, 'book_id' => $ownBook->id]);
-        Loan::factory()->create(['user_id' => $other->id, 'book_id' => $otherBook->id]);
+        $ownLoan = Loan::factory()->create(['user_id' => $owner->id, 'book_id' => $ownBook->id]);
+        $otherLoan = Loan::factory()->create(['user_id' => $other->id, 'book_id' => $otherBook->id]);
 
         $this->actingAs($owner)
             ->get('/siswa/dashboard')
             ->assertOk()
             ->assertSee('Buku Milik Sendiri')
-            ->assertDontSee('Buku Milik Orang Lain');
+            ->assertSee(route('siswa.pinjaman.perpanjang', $ownLoan))
+            ->assertDontSee(route('siswa.pinjaman.perpanjang', $otherLoan));
     }
 
     public function test_member_loan_and_history_pages_only_show_own_loans(): void

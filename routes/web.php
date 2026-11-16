@@ -35,6 +35,9 @@ Route::middleware('auth')->get('/dashboard', function (Request $request) {
 Route::middleware(['auth', 'role:admin,pustakawan,petugas,guru,siswa,user'])
     ->get('/katalog', [DashboardController::class, 'index'])
     ->name('siswa.katalog');
+Route::middleware(['auth', 'role:admin,pustakawan,petugas,guru,siswa,user'])
+    ->get('/katalog/{book}', [DashboardController::class, 'show'])
+    ->name('siswa.katalog.show');
 
 // --- SIRKULASI MANDIRI (anggota/pemustaka) ---
 Route::middleware(['auth', 'role:siswa,guru,user'])->group(function () {

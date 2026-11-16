@@ -35,6 +35,23 @@ class Book extends Model
         'jumlah_stok' => 'integer',
     ];
 
+    /**
+     * URL sampul buku untuk ditampilkan di antarmuka.
+     * Mendukung path penyimpanan relatif (disk public) maupun URL absolut.
+     */
+    public function coverUrl(): ?string
+    {
+        if (blank($this->cover_image)) {
+            return null;
+        }
+
+        if (str_starts_with($this->cover_image, 'http://') || str_starts_with($this->cover_image, 'https://')) {
+            return $this->cover_image;
+        }
+
+        return asset('storage/'.$this->cover_image);
+    }
+
     public function loans(): HasMany
     {
         return $this->hasMany(Loan::class);
