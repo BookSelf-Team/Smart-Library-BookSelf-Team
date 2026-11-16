@@ -189,14 +189,83 @@ class AdminCirculationTest extends TestCase
         $petugas = User::factory()->petugas()->create();
         $activeBook = Book::factory()->create(['judul' => 'Buku Masih Dipinjam']);
         $returnedBook = Book::factory()->create(['judul' => 'Buku Sudah Kembali']);
+        $cancelledBook = Book::factory()->create(['judul' => 'Buku Dibatalkan']);
 
         Loan::factory()->create(['book_id' => $activeBook->id]);
         Loan::factory()->returned()->create(['book_id' => $returnedBook->id]);
+        Loan::factory()->cancelled()->create(['book_id' => $cancelledBook->id]);
 
         $this->actingAs($petugas)
             ->get('/admin/pengembalian')
             ->assertOk()
             ->assertSee('Buku Masih Dipinjam')
-            ->assertDontSee('Buku Sudah Kembali');
+            ->assertDontSee('Buku Sudah Kembali')
+            ->assertDontSee('Buku Dibatalkan');
+    }
+
+    public function test_staff_can_cancel_an_active_loan_and_restore_stock(): void
+    {
+        $petugas = User::factory()->petugas()->create();
+        $book = Book::factory()->create(['jumlah_stok' => 1]);
+        $loan = Loan::factory()->create(['book_id' => $book->id]);
+
+        $this->actingAs($petugas)
+            ->patch(route('admin.peminjaman.batal', $loan))
+            ->assertSessionHas('success');
+
+        $this->assertSame(Loan::STATUS_CANCELLED, $loan->fresh()->status);
+        $this->assertNull($loan->fresh()->tanggal_dikembalikan);
+        $this->assertSame(2, $book->fresh()->jumlah_stok);
+    }
+
+    public function test_staff_cannot_cancel_a_completed_loan(): void
+    {
+        $petugas = User::factory()->petugas()->create();
+        $book = Book::factory()->create(['jumlah_stok' => 2]);
+        $loan = Loan::factory()->returned()->create(['book_id' => $book->id]);
+
+        $this->actingAs($petugas)
+            ->patch(route('admin.peminjaman.batal', $loan))
+            ->assertSessionHas('error');
+
+        $this->assertSame(Loan::STATUS_COMPLETED, $loan->fresh()->status);
+        $this->assertSame(2, $book->fresh()->jumlah_stok);
+    }
+
+    public function test_cancelled_loans_are_not_counted_toward_member_quota(): void
+    {
+        $petugas = User::factory()->petugas()->create();
+        $siswa = User::factory()->siswa()->create();
+        $book = Book::factory()->create(['jumlah_stok' => 1]);
+
+        Loan::factory()->count(3)->cancelled()->create(['user_id' => $siswa->id]);
+
+        $this->actingAs($petugas)
+            ->post('/admin/peminjaman', [
+                'user_id' => $siswa->id,
+                'book_id' => $book->id,
+            ])
+            ->assertSessionHas('success');
+
+        $this->assertDatabaseHas('loans', [
+            'user_id' => $siswa->id,
+            'book_id' => $book->id,
+            'status' => Loan::STATUS_ACTIVE,
+        ]);
+    }
+
+    public function test_peminjaman_page_shows_selesai_and_batal_actions_only_for_active_loans(): void
+    {
+        $petugas = User::factory()->petugas()->create();
+        $active = Loan::factory()->create();
+        $cancelled = Loan::factory()->cancelled()->create();
+
+        $this->actingAs($petugas)
+            ->get('/admin/peminjaman')
+            ->assertOk()
+            ->assertSee(route('admin.pengembalian.proses', $active))
+            ->assertSee(route('admin.peminjaman.batal', $active))
+            ->assertSee('Dibatalkan')
+            ->assertDontSee(route('admin.peminjaman.batal', $cancelled));
     }
 }

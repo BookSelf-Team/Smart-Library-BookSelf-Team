@@ -50,11 +50,7 @@ class LoanPolicy
             return false;
         }
 
-        if ($loan->tanggal_dikembalikan !== null) {
-            return false;
-        }
-
-        return true;
+        return $loan->isActive();
     }
 
     public function delete(User $user, Loan $loan): bool

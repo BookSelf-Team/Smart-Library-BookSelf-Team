@@ -34,4 +34,12 @@ class LoanFactory extends Factory
             'status' => 'COMPLETED',
         ]);
     }
+
+    public function cancelled(): static
+    {
+        return $this->state(fn (array $attributes): array => [
+            'tanggal_dikembalikan' => null,
+            'status' => 'CANCELLED',
+        ]);
+    }
 }

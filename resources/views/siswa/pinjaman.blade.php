@@ -25,6 +25,16 @@
         </div>
     @endif
 
+    @if (session('error'))
+        <div class="flex items-start gap-3 p-4 rounded-xl bg-error-container text-on-error-container flash-in">
+            <span class="material-symbols-outlined text-[22px]">error</span>
+            <div>
+                <p class="font-title-sm text-title-sm">Tidak dapat diproses</p>
+                <p class="font-body-sm text-body-sm">{{ session('error') }}</p>
+            </div>
+        </div>
+    @endif
+
     {{-- ================= HEADER ================= --}}
     <div class="flex flex-col xl:flex-row xl:items-end justify-between gap-6">
         <div class="flex flex-col gap-1.5">

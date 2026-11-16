@@ -186,4 +186,112 @@ class LoanOwnershipTest extends TestCase
             ->assertSee('Buku Sendiri Aktif')
             ->assertDontSee('Buku Orang Lain Aktif');
     }
+
+    public function test_member_can_complete_own_active_loan_and_restore_stock(): void
+    {
+        $owner = User::factory()->siswa()->create();
+        $book = Book::factory()->create(['jumlah_stok' => 1]);
+        $loan = Loan::factory()->create(['user_id' => $owner->id, 'book_id' => $book->id]);
+
+        $this->actingAs($owner)
+            ->patch(route('siswa.pinjaman.selesai', $loan))
+            ->assertSessionHas('success');
+
+        $this->assertSame(Loan::STATUS_COMPLETED, $loan->fresh()->status);
+        $this->assertNotNull($loan->fresh()->tanggal_dikembalikan);
+        $this->assertSame(2, $book->fresh()->jumlah_stok);
+    }
+
+    public function test_member_completing_overdue_loan_creates_a_fine(): void
+    {
+        Setting::setDendaPerHari(1000);
+
+        $owner = User::factory()->siswa()->create();
+        $book = Book::factory()->create(['jumlah_stok' => 1]);
+        $loan = Loan::factory()->create([
+            'user_id' => $owner->id,
+            'book_id' => $book->id,
+            'batas_kembali' => now()->subDays(3)->toDateString(),
+        ]);
+
+        $this->actingAs($owner)
+            ->patch(route('siswa.pinjaman.selesai', $loan))
+            ->assertSessionHas('success');
+
+        $this->assertDatabaseHas('fines', [
+            'loan_id' => $loan->id,
+            'nominal' => 3000,
+            'status_pembayaran' => 'BELUM',
+        ]);
+    }
+
+    public function test_member_can_cancel_own_active_loan_and_restore_stock(): void
+    {
+        $owner = User::factory()->siswa()->create();
+        $book = Book::factory()->create(['jumlah_stok' => 1]);
+        $loan = Loan::factory()->create(['user_id' => $owner->id, 'book_id' => $book->id]);
+
+        $this->actingAs($owner)
+            ->patch(route('siswa.pinjaman.batal', $loan))
+            ->assertSessionHas('success');
+
+        $this->assertSame(Loan::STATUS_CANCELLED, $loan->fresh()->status);
+        $this->assertNull($loan->fresh()->tanggal_dikembalikan);
+        $this->assertSame(2, $book->fresh()->jumlah_stok);
+    }
+
+    public function test_member_cannot_complete_another_members_loan(): void
+    {
+        $owner = User::factory()->siswa()->create();
+        $attacker = User::factory()->siswa()->create();
+        $book = Book::factory()->create(['jumlah_stok' => 1]);
+        $loan = Loan::factory()->create(['user_id' => $owner->id, 'book_id' => $book->id]);
+
+        $this->actingAs($attacker)
+            ->patch(route('siswa.pinjaman.selesai', $loan))
+            ->assertForbidden();
+
+        $this->assertSame(Loan::STATUS_ACTIVE, $loan->fresh()->status);
+        $this->assertNull($loan->fresh()->tanggal_dikembalikan);
+        $this->assertSame(1, $book->fresh()->jumlah_stok);
+    }
+
+    public function test_member_cannot_cancel_another_members_loan(): void
+    {
+        $owner = User::factory()->siswa()->create();
+        $attacker = User::factory()->siswa()->create();
+        $book = Book::factory()->create(['jumlah_stok' => 1]);
+        $loan = Loan::factory()->create(['user_id' => $owner->id, 'book_id' => $book->id]);
+
+        $this->actingAs($attacker)
+            ->patch(route('siswa.pinjaman.batal', $loan))
+            ->assertForbidden();
+
+        $this->assertSame(Loan::STATUS_ACTIVE, $loan->fresh()->status);
+        $this->assertSame(1, $book->fresh()->jumlah_stok);
+    }
+
+    public function test_pinjaman_page_shows_selesai_and_batal_actions_for_own_loan(): void
+    {
+        $owner = User::factory()->siswa()->create();
+        $loan = Loan::factory()->create(['user_id' => $owner->id]);
+
+        $this->actingAs($owner)
+            ->get('/siswa/pinjaman')
+            ->assertOk()
+            ->assertSee(route('siswa.pinjaman.selesai', $loan))
+            ->assertSee(route('siswa.pinjaman.batal', $loan));
+    }
+
+    public function test_cancelled_loan_is_not_listed_on_the_active_loans_page(): void
+    {
+        $owner = User::factory()->siswa()->create();
+        $book = Book::factory()->create(['judul' => 'Buku Sudah Dibatalkan']);
+        Loan::factory()->cancelled()->create(['user_id' => $owner->id, 'book_id' => $book->id]);
+
+        $this->actingAs($owner)
+            ->get('/siswa/pinjaman')
+            ->assertOk()
+            ->assertDontSee('Buku Sudah Dibatalkan');
+    }
 }

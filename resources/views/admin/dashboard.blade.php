@@ -173,6 +173,10 @@
                                     <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-primary-fixed text-on-primary-fixed-variant font-label-sm text-label-sm font-semibold">
                                         <span class="w-1.5 h-1.5 rounded-full bg-primary"></span> Dipinjam
                                     </span>
+                                @elseif($loan->status === \App\Models\Loan::STATUS_CANCELLED)
+                                    <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-surface-container text-on-surface-variant font-label-sm text-label-sm font-semibold">
+                                        Dibatalkan
+                                    </span>
                                 @else
                                     <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-secondary-container text-on-secondary-fixed-variant font-label-sm text-label-sm font-semibold">
                                         Dikembalikan

@@ -82,10 +82,14 @@
                     <div class="flex"><span class="w-32 text-on-surface-variant">ID Sirkulasi:</span> <span class="font-mono font-semibold text-on-surface">#TRX-{{ str_pad($loan->id, 5, '0', STR_PAD_LEFT) }}</span></div>
                     <div class="flex"><span class="w-32 text-on-surface-variant">Tanggal Pinjam:</span> <span class="text-on-surface">{{ $loan->tanggal_pinjam->translatedFormat('d F Y') }}</span></div>
                     <div class="flex"><span class="w-32 text-on-surface-variant">Batas Kembali:</span> <span class="font-semibold text-primary">{{ $loan->batas_kembali->translatedFormat('d F Y') }}</span></div>
-                    <div class="flex"><span class="w-32 text-on-surface-variant">Status Pinjaman:</span> 
-                        <span class="font-semibold {{ $loan->tanggal_dikembalikan ? 'text-secondary' : 'text-primary' }}">
-                            {{ $loan->tanggal_dikembalikan ? 'Dikembalikan ('.$loan->tanggal_dikembalikan->translatedFormat('d M Y').')' : 'Aktif (Dipinjam)' }}
-                        </span>
+                    <div class="flex"><span class="w-32 text-on-surface-variant">Status Pinjaman:</span>
+                        @if ($loan->status === \App\Models\Loan::STATUS_CANCELLED)
+                            <span class="font-semibold text-error">Dibatalkan</span>
+                        @else
+                            <span class="font-semibold {{ $loan->tanggal_dikembalikan ? 'text-secondary' : 'text-primary' }}">
+                                {{ $loan->tanggal_dikembalikan ? 'Dikembalikan ('.$loan->tanggal_dikembalikan->translatedFormat('d M Y').')' : 'Aktif (Dipinjam)' }}
+                            </span>
+                        @endif
                     </div>
                 </div>
             </div>
