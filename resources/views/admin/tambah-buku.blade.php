@@ -16,11 +16,13 @@
             <span class="font-title-sm text-title-sm">Kembali ke Data Buku</span>
         </a>
     </div>
-@if(session('error'))
-<div class="bg-red-100 border-1-4 border-red-600 text-red-800 p-4 mb-4 rounded">
-    <strong>Peringatan Validasi:</strong> {{ session('error') }}
-</div>
-@endif
+
+    @if(session('error'))
+    <div class="bg-red-100 border-1-4 border-red-600 text-red-800 p-4 mb-4 rounded">
+        <strong>Peringatan Validasi:</strong> {{
+            session('error') }}
+    </div>
+    @endif
 
     @if ($errors->any())
         <div class="bg-error-container text-on-error-container px-4 py-3 rounded-lg font-body-md shadow-sm">
