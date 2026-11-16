@@ -34,14 +34,14 @@ class AkunController extends Controller
 
         $dipinjam = Loan::query()
             ->where('user_id', $user->getKey())
-            ->whereNull('tanggal_dikembalikan')
+            ->active()
             ->count();
 
         $totalPinjam = Loan::query()->where('user_id', $user->getKey())->count();
 
         $dibaca = Loan::query()
             ->where('user_id', $user->getKey())
-            ->whereNotNull('tanggal_dikembalikan')
+            ->where('status', Loan::STATUS_COMPLETED)
             ->count();
 
         $dendaBelum = Fine::query()
@@ -86,12 +86,12 @@ class AkunController extends Controller
         $statistik = [
             'aktif' => Loan::query()
                 ->where('user_id', $user->getKey())
-                ->whereNull('tanggal_dikembalikan')
+                ->active()
                 ->count(),
             'total_pinjam' => Loan::query()->where('user_id', $user->getKey())->count(),
             'dibaca' => Loan::query()
                 ->where('user_id', $user->getKey())
-                ->whereNotNull('tanggal_dikembalikan')
+                ->where('status', Loan::STATUS_COMPLETED)
                 ->count(),
             'target' => 24,
         ];

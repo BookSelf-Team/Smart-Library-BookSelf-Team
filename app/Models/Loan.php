@@ -19,6 +19,8 @@ class Loan extends Model
 
     public const STATUS_COMPLETED = 'COMPLETED';
 
+    public const STATUS_CANCELLED = 'CANCELLED';
+
     /**
      * The attributes that are mass assignable.
      *
@@ -47,13 +49,22 @@ class Loan extends Model
     #[Scope]
     protected function active(Builder $query): void
     {
-        $query->whereNull('tanggal_dikembalikan');
+        $query->whereNull('tanggal_dikembalikan')
+            ->where('status', '!=', self::STATUS_CANCELLED);
     }
 
     #[Scope]
     protected function overdue(Builder $query): void
     {
         $query->active()->whereDate('batas_kembali', '<', today());
+    }
+
+    /**
+     * Pinjaman masih berjalan (belum dikembalikan dan tidak dibatalkan).
+     */
+    public function isActive(): bool
+    {
+        return $this->tanggal_dikembalikan === null && $this->status !== self::STATUS_CANCELLED;
     }
 
     public function user(): BelongsTo

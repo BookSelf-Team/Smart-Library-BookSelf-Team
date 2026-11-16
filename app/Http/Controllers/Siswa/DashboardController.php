@@ -28,7 +28,7 @@ class DashboardController extends Controller
         $loans = Loan::query()
             ->with('book')
             ->where('user_id', $user->getKey())
-            ->whereNull('tanggal_dikembalikan')
+            ->active()
             ->orderBy('batas_kembali')
             ->get()
             ->map(fn (Loan $loan): array => [
@@ -42,7 +42,7 @@ class DashboardController extends Controller
 
         $dibaca = Loan::query()
             ->where('user_id', $user->getKey())
-            ->whereNotNull('tanggal_dikembalikan')
+            ->where('status', Loan::STATUS_COMPLETED)
             ->count();
 
         // Hitung ringkasan dari data pinjaman

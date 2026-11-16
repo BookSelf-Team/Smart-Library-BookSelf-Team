@@ -55,6 +55,17 @@ class BukuController extends Controller
             $validated['cover_image'] = $sanitizer->sanitizeAndStoreImage($request->file('cover_image'), 'covers');
         }
 
+        $isDuplicate = Book::where('judul', $validated['judul'])
+            ->where('pengarang', $validated['pengarang'])
+            ->where('tahun_terbit', $validated['tahun_terbit'])
+            ->exists();
+
+        if ($isDuplicate) {
+            return redirect()->route('admin.buku.index')
+                ->withInput()
+                ->withErrors(['judul' => 'Buku dengan judul, pengarang, dan tahun terbit yang sama sudah ada di katalog.']);
+        }
+
         $validated['kode_buku'] = $this->generateKodeBuku();
 
         Book::create($validated);
@@ -94,7 +105,7 @@ class BukuController extends Controller
     {
         $this->authorize('delete', $book);
 
-        if ($book->loans()->whereNull('tanggal_dikembalikan')->exists()) {
+        if ($book->loans()->active()->exists()) {
             return redirect()->route('admin.buku.index')->with('error', 'Buku "'.$book->judul.'" masih sedang dipinjam dan tidak bisa dihapus.');
         }
 

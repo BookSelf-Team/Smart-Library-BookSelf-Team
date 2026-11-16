@@ -172,19 +172,35 @@
                                     <span class="inline-flex px-2.5 py-0.5 rounded-full font-label-sm text-label-sm font-semibold whitespace-nowrap {{ $badge[0] }}">{{ $badge[1] }}</span>
                                 </td>
                                 <td class="px-4 py-3 text-right">
-                                    <div class="flex items-center justify-end gap-2 whitespace-nowrap">
+                                    <div class="flex flex-wrap items-center justify-end gap-2">
                                         <a href="{{ route('invoices.loan', $loan['id']) }}" target="_blank" class="px-2.5 py-1.5 rounded-lg border border-outline-variant text-on-surface hover:text-primary hover:border-primary font-label-md text-xs inline-flex items-center gap-1 transition-colors" title="Cetak Bukti Peminjaman">
                                             <span class="material-symbols-outlined text-[16px]">receipt_long</span>
                                             <span>Bukti Pinjam</span>
                                         </a>
                                         @if ($sisa < 0)
-                                            <span class="font-label-sm text-label-sm text-on-surface-variant">Kembalikan ke petugas</span>
+                                            <span class="font-label-sm text-label-sm text-error font-semibold">Segera kembalikan</span>
                                         @else
                                             <form method="POST" action="{{ route('siswa.pinjaman.perpanjang', $loan['id']) }}">
                                                 @csrf
                                                 <button type="submit" class="px-3 py-1.5 rounded-lg border border-outline-variant text-on-surface font-label-md text-label-md hover:bg-surface-container transition-colors">Perpanjang +7 Hari</button>
                                             </form>
                                         @endif
+                                        <form method="POST" action="{{ route('siswa.pinjaman.selesai', $loan['id']) }}" onsubmit="return confirm('Tandai buku ini sudah selesai dipinjam dan dikembalikan?')">
+                                            @csrf
+                                            @method('PATCH')
+                                            <button type="submit" class="px-3 py-1.5 rounded-lg bg-primary text-on-primary font-label-md text-label-md hover:bg-primary/90 transition-colors inline-flex items-center gap-1">
+                                                <span class="material-symbols-outlined text-[16px]">task_alt</span>
+                                                <span>Selesai</span>
+                                            </button>
+                                        </form>
+                                        <form method="POST" action="{{ route('siswa.pinjaman.batal', $loan['id']) }}" onsubmit="return confirm('Batalkan peminjaman ini? Slot kuota Anda akan dikembalikan.')">
+                                            @csrf
+                                            @method('PATCH')
+                                            <button type="submit" class="px-3 py-1.5 rounded-lg border border-error/40 text-error font-label-md text-label-md hover:bg-error-container transition-colors inline-flex items-center gap-1">
+                                                <span class="material-symbols-outlined text-[16px]">cancel</span>
+                                                <span>Batal</span>
+                                            </button>
+                                        </form>
                                     </div>
                                 </td>
                             </tr>

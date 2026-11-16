@@ -28,7 +28,16 @@ class LoanPolicy
 
     public function returnBook(User $user, Loan $loan): bool
     {
-        return $user->canCirculate();
+        if ($user->canCirculate()) {
+            return true;
+        }
+
+        return (int) $loan->user_id === (int) $user->getKey();
+    }
+
+    public function cancel(User $user, Loan $loan): bool
+    {
+        return $this->returnBook($user, $loan);
     }
 
     public function extend(User $user, Loan $loan): bool

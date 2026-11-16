@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Book;
 use App\Models\Loan;
 use App\Models\User;
+use App\Services\LoanService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -111,5 +112,21 @@ class PeminjamanController extends Controller
 
             return back()->with('success', 'Peminjaman "'.$book->judul.'" atas nama '.$user->name.' berhasil dicatat. Jatuh tempo '.$batasKembali->translatedFormat('d M Y').'.');
         });
+    }
+
+    /**
+     * Batalkan pinjaman yang masih aktif dan kembalikan stok buku.
+     */
+    public function batal(Loan $loan, LoanService $service): RedirectResponse
+    {
+        $this->authorize('cancel', $loan);
+
+        $hasil = $service->cancel($loan);
+
+        if ($hasil === null) {
+            return back()->with('error', 'Pinjaman ini sudah selesai atau dibatalkan sebelumnya.');
+        }
+
+        return back()->with('success', 'Peminjaman "'.$hasil['judul'].'" atas nama '.$hasil['anggota'].' dibatalkan. Stok buku sudah dikembalikan.');
     }
 }

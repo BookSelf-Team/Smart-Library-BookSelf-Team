@@ -45,7 +45,7 @@ class LoanController extends Controller
         return DB::transaction(function () use ($request) {
             $aktif = Loan::query()
                 ->where('user_id', $request->user()->getKey())
-                ->whereNull('tanggal_dikembalikan')
+                ->active()
                 ->count();
 
             if ($aktif >= self::KUOTA_PINJAM) {

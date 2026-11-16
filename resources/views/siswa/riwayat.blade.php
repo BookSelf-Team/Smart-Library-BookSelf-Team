@@ -62,7 +62,7 @@
                     <span class="material-symbols-outlined text-[22px]">library_books</span>
                 </div>
             </div>
-            <p class="font-label-sm text-label-sm text-on-surface-variant">{{ $stats['selesai'] }} selesai • {{ $stats['aktif'] }} masih dipinjam</p>
+            <p class="font-label-sm text-label-sm text-on-surface-variant">{{ $stats['selesai'] }} selesai • {{ $stats['aktif'] }} masih dipinjam{{ $stats['dibatalkan'] > 0 ? ' • '.$stats['dibatalkan'].' dibatalkan' : '' }}</p>
         </div>
 
         <div class="p-5 rounded-xl bg-surface-container-low flex flex-col gap-4">
@@ -146,7 +146,9 @@
                     <tbody class="font-body-sm text-body-sm">
                         @forelse ($riwayat as $r)
                             @php
-                                if ($r['status'] === 'dipinjam' && $r['denda'] > 0) {
+                                if ($r['status'] === 'dibatalkan') {
+                                    $badge = ['bg-surface-container text-on-surface-variant', 'Dibatalkan'];
+                                } elseif ($r['status'] === 'dipinjam' && $r['denda'] > 0) {
                                     $badge = ['bg-error-container text-on-error-container', 'Terlambat'];
                                 } elseif ($r['denda'] > 0 && ! $r['denda_dibayar']) {
                                     $badge = ['bg-error-container text-on-error-container', 'Denda belum dibayar'];

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Loan;
 use App\Models\Setting;
 use App\Models\User;
+use App\Services\LoanService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -98,6 +99,7 @@ class PinjamanController extends Controller
             'total' => $semua->count(),
             'selesai' => $semua->where('status', 'selesai')->count(),
             'aktif' => $semua->where('status', 'dipinjam')->count(),
+            'dibatalkan' => $semua->where('status', 'dibatalkan')->count(),
             'terlambat' => $semua->filter(fn ($r) => $r['denda'] > 0)->count(),
             'denda_total' => $semua->sum('denda'),
             'denda_belum' => $semua->filter(fn ($r) => ! $r['denda_dibayar'])->sum('denda'),
@@ -121,6 +123,43 @@ class PinjamanController extends Controller
         return back()->with('success', 'Pinjaman "'.$loan->book?->judul.'" berhasil diperpanjang '.self::LAMA_PINJAM_HARI.' hari.');
     }
 
+    /**
+     * Tandai pinjaman milik sendiri selesai (buku sudah dikembalikan).
+     */
+    public function selesai(Loan $loan, LoanService $service): RedirectResponse
+    {
+        $this->authorize('returnBook', $loan);
+
+        $hasil = $service->complete($loan);
+
+        if ($hasil === null) {
+            return back()->with('error', 'Pinjaman ini sudah selesai atau dibatalkan sebelumnya.');
+        }
+
+        $pesan = 'Pinjaman "'.$hasil['judul'].'" ditandai selesai. Terima kasih sudah mengembalikan buku.';
+        if ($hasil['denda'] > 0) {
+            $pesan .= " Denda keterlambatan {$hasil['telat']} hari: Rp ".number_format($hasil['denda'], 0, ',', '.').'.';
+        }
+
+        return back()->with('success', $pesan);
+    }
+
+    /**
+     * Batalkan pinjaman milik sendiri dan kembalikan stok buku.
+     */
+    public function batal(Loan $loan, LoanService $service): RedirectResponse
+    {
+        $this->authorize('cancel', $loan);
+
+        $hasil = $service->cancel($loan);
+
+        if ($hasil === null) {
+            return back()->with('error', 'Pinjaman ini sudah selesai atau dibatalkan sebelumnya.');
+        }
+
+        return back()->with('success', 'Peminjaman "'.$hasil['judul'].'" berhasil dibatalkan. Slot kuota Anda sudah dikembalikan.');
+    }
+
     private function siswa(User $user): array
     {
         return [
@@ -140,7 +179,7 @@ class PinjamanController extends Controller
         return Loan::query()
             ->with('book')
             ->where('user_id', $user->getKey())
-            ->whereNull('tanggal_dikembalikan')
+            ->active()
             ->orderBy('batas_kembali')
             ->get()
             ->map(fn (Loan $loan): array => [
@@ -174,8 +213,9 @@ class PinjamanController extends Controller
                     fn ($fine): bool => in_array($fine->status_pembayaran, ['LUNAS', 'PAID'], true),
                 );
 
+                $dibatalkan = $loan->status === Loan::STATUS_CANCELLED;
                 $tglKembali = $loan->tanggal_dikembalikan;
-                $overdueHari = $tglKembali === null
+                $overdueHari = $tglKembali === null && ! $dibatalkan
                     ? max(0, (int) $loan->batas_kembali->copy()->startOfDay()->diffInDays(Carbon::today(), false))
                     : 0;
                 $denda = $dendaTercatat > 0 ? $dendaTercatat : $overdueHari * $dendaPerHari;
@@ -185,7 +225,7 @@ class PinjamanController extends Controller
                     'fine_id' => $loan->fines->first()?->id,
                     'title' => $loan->book?->judul ?? 'Buku tidak diketahui',
                     'author' => $loan->book?->pengarang ?? '-',
-                    'status' => $tglKembali ? 'selesai' : 'dipinjam',
+                    'status' => $dibatalkan ? 'dibatalkan' : ($tglKembali ? 'selesai' : 'dipinjam'),
                     'tgl_pinjam' => $loan->tanggal_pinjam,
                     'tgl_kembali' => $tglKembali,
                     'hari' => (int) $loan->tanggal_pinjam->diffInDays($tglKembali ?? Carbon::today()),

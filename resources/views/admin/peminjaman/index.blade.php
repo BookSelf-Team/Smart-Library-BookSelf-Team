@@ -34,13 +34,14 @@
                         <th class="px-4 py-3 text-left font-label-sm text-label-sm uppercase tracking-wide text-on-surface-variant whitespace-nowrap">Tgl Pinjam</th>
                         <th class="px-4 py-3 text-left font-label-sm text-label-sm uppercase tracking-wide text-on-surface-variant whitespace-nowrap">Jatuh Tempo</th>
                         <th class="px-4 py-3 text-center font-label-sm text-label-sm uppercase tracking-wide text-on-surface-variant whitespace-nowrap">Status</th>
-                        <th class="px-4 py-3 text-right font-label-sm text-label-sm uppercase tracking-wide text-on-surface-variant whitespace-nowrap">Struk</th>
+                        <th class="px-4 py-3 text-right font-label-sm text-label-sm uppercase tracking-wide text-on-surface-variant whitespace-nowrap">Aksi</th>
                     </tr>
                 </thead>
                 <tbody class="bg-surface divide-y divide-surface-container-highest">
                     @forelse ($loans as $l)
                         @php
-                            $aktif = $l->tanggal_dikembalikan === null;
+                            $dibatalkan = $l->status === \App\Models\Loan::STATUS_CANCELLED;
+                            $aktif = ! $dibatalkan && $l->tanggal_dikembalikan === null;
                             $telat = $aktif && $l->batas_kembali?->isPast();
                         @endphp
                         <tr class="hover:bg-surface-container-low/60">
@@ -54,7 +55,9 @@
                                 {{ $l->batas_kembali?->translatedFormat('d M Y') }}
                             </td>
                             <td class="px-4 py-3 text-center whitespace-nowrap">
-                                @if (! $aktif)
+                                @if ($dibatalkan)
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-surface-container text-on-surface-variant font-label-sm">Dibatalkan</span>
+                                @elseif (! $aktif)
                                     <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-secondary-container text-on-secondary-fixed-variant font-label-sm">Selesai</span>
                                 @elseif ($telat)
                                     <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-error-container text-on-error-container font-label-sm font-semibold">Terlambat</span>
@@ -65,10 +68,30 @@
                                 @endif
                             </td>
                             <td class="px-4 py-3 text-right whitespace-nowrap">
-                                <a href="{{ route('invoices.loan', $l->id) }}" target="_blank" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-semibold bg-surface-container text-on-surface hover:text-primary hover:bg-surface-container-high transition-colors" title="Cetak Bukti Peminjaman">
-                                    <span class="material-symbols-outlined text-[16px]">receipt_long</span>
-                                    <span>Struk</span>
-                                </a>
+                                <div class="flex flex-wrap items-center justify-end gap-1.5">
+                                    @if ($aktif)
+                                        <form method="POST" action="{{ route('admin.pengembalian.proses', $l->id) }}" onsubmit="return confirm('Selesaikan peminjaman ini? Buku akan ditandai sudah dikembalikan.')">
+                                            @csrf
+                                            @method('PATCH')
+                                            <button type="submit" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-semibold bg-primary-container text-on-primary-container hover:bg-primary hover:text-on-primary transition-colors" title="Tandai peminjaman selesai">
+                                                <span class="material-symbols-outlined text-[16px]">task_alt</span>
+                                                <span>Selesai</span>
+                                            </button>
+                                        </form>
+                                        <form method="POST" action="{{ route('admin.peminjaman.batal', $l->id) }}" onsubmit="return confirm('Batalkan peminjaman ini? Stok buku akan dikembalikan.')">
+                                            @csrf
+                                            @method('PATCH')
+                                            <button type="submit" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-semibold bg-error-container text-on-error-container hover:bg-error hover:text-on-error transition-colors" title="Batalkan peminjaman">
+                                                <span class="material-symbols-outlined text-[16px]">cancel</span>
+                                                <span>Batal</span>
+                                            </button>
+                                        </form>
+                                    @endif
+                                    <a href="{{ route('invoices.loan', $l->id) }}" target="_blank" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-semibold bg-surface-container text-on-surface hover:text-primary hover:bg-surface-container-high transition-colors" title="Cetak Bukti Peminjaman">
+                                        <span class="material-symbols-outlined text-[16px]">receipt_long</span>
+                                        <span>Struk</span>
+                                    </a>
+                                </div>
                             </td>
                         </tr>
                     @empty

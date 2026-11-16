@@ -56,6 +56,8 @@ Route::middleware(['auth', 'role:siswa,guru,user'])->prefix('siswa')->group(func
 
     Route::get('/pinjaman', [PinjamanController::class, 'index'])->name('siswa.pinjaman');
     Route::post('/pinjaman/{loan}/perpanjang', [PinjamanController::class, 'perpanjang'])->name('siswa.pinjaman.perpanjang');
+    Route::patch('/pinjaman/{loan}/selesai', [PinjamanController::class, 'selesai'])->name('siswa.pinjaman.selesai');
+    Route::patch('/pinjaman/{loan}/batal', [PinjamanController::class, 'batal'])->name('siswa.pinjaman.batal');
 
     Route::get('/riwayat', [PinjamanController::class, 'riwayat'])->name('siswa.riwayat');
 
@@ -71,6 +73,7 @@ Route::middleware(['auth', 'role:admin,pustakawan,petugas', 'can:circulate'])->g
 
     Route::get('/admin/peminjaman', [PeminjamanController::class, 'index'])->name('admin.peminjaman');
     Route::post('/admin/peminjaman', [PeminjamanController::class, 'store'])->name('admin.peminjaman.store');
+    Route::patch('/admin/peminjaman/{loan}/batal', [PeminjamanController::class, 'batal'])->name('admin.peminjaman.batal');
 
     Route::get('/admin/pengembalian', [PengembalianController::class, 'index'])->name('admin.pengembalian');
     Route::patch('/admin/pengembalian/{loan}', [PengembalianController::class, 'proses'])->name('admin.pengembalian.proses');
