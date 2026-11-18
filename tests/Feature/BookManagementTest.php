@@ -278,4 +278,76 @@ class BookManagementTest extends TestCase
             'jumlah_stok' => -1,
         ])->assertSessionHasErrors('jumlah_stok');
     }
+
+    public function test_admin_cannot_create_duplicate_book(): void
+    {
+        $admin = User::factory()->admin()->create();
+        Book::factory()->create([
+            'judul' => 'Buku Duplikat',
+            'pengarang' => 'Penulis Sama',
+            'tahun_terbit' => 2024,
+        ]);
+
+        $this->actingAs($admin)
+            ->from(route('admin.buku.tambah'))
+            ->post('/admin/buku', [
+                'judul' => 'Buku Duplikat',
+                'pengarang' => 'Penulis Sama',
+                'tahun_terbit' => 2024,
+                'jumlah_stok' => 2,
+                'sinopsis' => 'Percobaan menambah buku yang sama',
+            ])
+            ->assertRedirect(route('admin.buku.tambah'))
+            ->assertSessionHasErrors('judul')
+            ->assertSessionHasInput('judul', 'Buku Duplikat');
+
+        $this->assertDatabaseCount('books', 1);
+    }
+
+    public function test_admin_can_create_book_with_same_title_but_different_details(): void
+    {
+        $admin = User::factory()->admin()->create();
+        Book::factory()->create([
+            'judul' => 'Buku Sama',
+            'pengarang' => 'Penulis Pertama',
+            'tahun_terbit' => 2024,
+        ]);
+
+        $this->actingAs($admin)->post('/admin/buku', [
+            'judul' => 'Buku Sama',
+            'pengarang' => 'Penulis Kedua',
+            'tahun_terbit' => 2024,
+            'jumlah_stok' => 1,
+        ])->assertRedirect(route('admin.buku.index'));
+
+        $this->assertDatabaseCount('books', 2);
+    }
+
+    public function test_admin_cannot_update_book_to_duplicate_another_book(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $book = Book::factory()->create([
+            'judul' => 'Buku Pertama',
+            'pengarang' => 'Penulis Sama',
+            'tahun_terbit' => 2024,
+        ]);
+        Book::factory()->create([
+            'judul' => 'Buku Kedua',
+            'pengarang' => 'Penulis Sama',
+            'tahun_terbit' => 2024,
+        ]);
+
+        $this->actingAs($admin)
+            ->from(route('admin.buku.index'))
+            ->put('/admin/buku/'.$book->id, [
+                'judul' => 'Buku Kedua',
+                'pengarang' => 'Penulis Sama',
+                'tahun_terbit' => 2024,
+                'jumlah_stok' => 1,
+            ])
+            ->assertRedirect(route('admin.buku.index'))
+            ->assertSessionHasErrors('judul');
+
+        $this->assertSame('Buku Pertama', $book->fresh()->judul);
+    }
 }

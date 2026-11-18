@@ -26,6 +26,15 @@
     @if (session('error'))
         <div class="bg-error-container text-on-error-container px-4 py-3 rounded-lg font-body-md shadow-sm flash-in">{{ session('error') }}</div>
     @endif
+    @if ($errors->any())
+        <div class="bg-error-container text-on-error-container px-4 py-3 rounded-lg font-body-md shadow-sm">
+            <ul class="list-disc list-inside">
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
 
     <form method="GET" action="{{ route('admin.buku.index') }}" class="relative max-w-md">
         <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[20px]">search</span>

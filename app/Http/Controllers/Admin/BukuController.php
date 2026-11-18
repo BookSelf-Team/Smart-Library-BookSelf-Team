@@ -5,8 +5,11 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Book;
 use App\Services\FileUploadSanitizer;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Validator as ValidatorInstance;
 use Illuminate\View\View;
 
 class BukuController extends Controller
@@ -42,28 +45,10 @@ class BukuController extends Controller
     {
         $this->authorize('create', Book::class);
 
-        $validated = $request->validate([
-            'judul' => ['required', 'string', 'max:150'],
-            'pengarang' => ['required', 'string', 'max:100'],
-            'tahun_terbit' => ['required', 'integer', 'between:1000,2100'],
-            'jumlah_stok' => ['required', 'integer', 'min:0'],
-            'sinopsis' => ['nullable', 'string'],
-            'cover_image' => ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
-        ]);
+        $validated = $this->validateBook($request);
 
         if ($request->hasFile('cover_image')) {
             $validated['cover_image'] = $sanitizer->sanitizeAndStoreImage($request->file('cover_image'), 'covers');
-        }
-
-        $isDuplicate = Book::where('judul', $validated['judul'])
-            ->where('pengarang', $validated['pengarang'])
-            ->where('tahun_terbit', $validated['tahun_terbit'])
-            ->exists();
-
-        if ($isDuplicate) {
-            return redirect()->route('admin.buku.index')
-                ->withInput()
-                ->withErrors(['judul' => 'Buku dengan judul, pengarang, dan tahun terbit yang sama sudah ada di katalog.']);
         }
 
         $validated['kode_buku'] = $this->generateKodeBuku();
@@ -80,14 +65,7 @@ class BukuController extends Controller
     {
         $this->authorize('update', $book);
 
-        $validated = $request->validate([
-            'judul' => ['required', 'string', 'max:150'],
-            'pengarang' => ['required', 'string', 'max:100'],
-            'tahun_terbit' => ['required', 'integer', 'between:1000,2100'],
-            'jumlah_stok' => ['required', 'integer', 'min:0'],
-            'sinopsis' => ['nullable', 'string'],
-            'cover_image' => ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
-        ]);
+        $validated = $this->validateBook($request, $book);
 
         if ($request->hasFile('cover_image')) {
             $validated['cover_image'] = $sanitizer->sanitizeAndStoreImage($request->file('cover_image'), 'covers');
@@ -112,6 +90,42 @@ class BukuController extends Controller
         $book->delete();
 
         return redirect()->route('admin.buku.index')->with('success', 'Buku "'.$book->judul.'" berhasil dihapus.');
+    }
+
+    /**
+     * Validasi data buku, termasuk pengecekan duplikat judul, pengarang, dan tahun terbit.
+     *
+     * @return array<string, mixed>
+     */
+    private function validateBook(Request $request, ?Book $book = null): array
+    {
+        $validator = Validator::make($request->all(), [
+            'judul' => ['required', 'string', 'max:150'],
+            'pengarang' => ['required', 'string', 'max:100'],
+            'tahun_terbit' => ['required', 'integer', 'between:1000,2100'],
+            'jumlah_stok' => ['required', 'integer', 'min:0'],
+            'sinopsis' => ['nullable', 'string'],
+            'cover_image' => ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
+        ]);
+
+        $validator->after(function (ValidatorInstance $validator) use ($request, $book): void {
+            if ($validator->errors()->hasAny(['judul', 'pengarang', 'tahun_terbit'])) {
+                return;
+            }
+
+            $isDuplicate = Book::query()
+                ->where('judul', $request->input('judul'))
+                ->where('pengarang', $request->input('pengarang'))
+                ->where('tahun_terbit', $request->input('tahun_terbit'))
+                ->when($book !== null, fn (Builder $query) => $query->whereKeyNot($book->getKey()))
+                ->exists();
+
+            if ($isDuplicate) {
+                $validator->errors()->add('judul', 'Buku dengan judul, pengarang, dan tahun terbit yang sama sudah ada di katalog.');
+            }
+        });
+
+        return $validator->validate();
     }
 
     /**
