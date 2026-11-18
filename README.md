@@ -106,6 +106,8 @@ Berlaku untuk role `siswa`, `guru`, dan `user` (role lama yang tetap diperlakuka
 
 ### API Buku
 
+Dokumentasi lengkap tersedia di [API.md](API.md).
+
 Endpoint JSON untuk katalog buku:
 
 ```http
