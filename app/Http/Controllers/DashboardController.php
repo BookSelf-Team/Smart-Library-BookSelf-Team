@@ -52,15 +52,9 @@ class DashboardController extends Controller
     {
         $this->authorize('is-staff');
 
-        // KPI ringkasan operasional.
-        $stats = [
-            'total_buku' => (int) Book::sum('jumlah_stok'),
-            'sedang_dipinjam' => Loan::query()->active()->count(),
-            'lewat_tempo' => Loan::query()->overdue()->count(),
-            'denda_belum_lunas' => (int) Fine::query()
-                ->whereIn('status_pembayaran', ['BELUM', 'UNPAID'])
-                ->sum('nominal'),
-        ];
+        $totalJudul = Book::count();
+        $stokTersedia = (int) Book::sum('jumlah_stok');
+        $sedangDipinjam = Loan::query()->active()->count();
 
         // Rekap agregat: jumlah peminjaman dikelompokkan per status.
         $rekapPinjaman = Loan::query()
@@ -70,6 +64,22 @@ class DashboardController extends Controller
 
         // Rekap agregat: total nominal denda dikelompokkan per status pembayaran.
         $rekapDenda = $this->rekapDendaPerStatus();
+
+        $dendaBelumLunas = $rekapDenda->only(['BELUM', 'UNPAID']);
+        $dendaLunas = $rekapDenda->only(['LUNAS', 'PAID']);
+
+        // KPI ringkasan operasional.
+        $stats = [
+            'total_judul' => $totalJudul,
+            'total_buku' => $stokTersedia + $sedangDipinjam,
+            'stok_tersedia' => $stokTersedia,
+            'sedang_dipinjam' => $sedangDipinjam,
+            'lewat_tempo' => Loan::query()->overdue()->count(),
+            'denda_belum_lunas' => (int) $dendaBelumLunas->sum('total'),
+            'jumlah_denda_belum_lunas' => (int) $dendaBelumLunas->sum('jumlah'),
+            'denda_lunas' => (int) $dendaLunas->sum('total'),
+            'jumlah_denda_lunas' => (int) $dendaLunas->sum('jumlah'),
+        ];
 
         $loans = Loan::query()
             ->with(['user', 'book'])

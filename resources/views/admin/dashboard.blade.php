@@ -41,6 +41,9 @@
                         <span class="font-headline-lg text-headline-lg font-bold text-on-surface">{{ number_format($stats['total_buku'], 0, ',', '.') }}</span>
                         <span class="font-label-md text-label-md text-on-surface-variant">Buku Fisik</span>
                     </div>
+                    <p class="font-label-sm text-label-sm text-on-surface-variant mt-2">
+                        {{ number_format($stats['total_judul'], 0, ',', '.') }} judul • {{ number_format($stats['stok_tersedia'], 0, ',', '.') }} tersedia di rak
+                    </p>
                 </div>
                 <div class="w-11 h-11 rounded-lg bg-primary-container/20 text-primary flex items-center justify-center">
                     <span class="material-symbols-outlined text-[22px]">auto_stories</span>
@@ -88,6 +91,88 @@
                 </div>
                 <div class="w-11 h-11 rounded-lg bg-on-primary-container/15 text-on-primary-container flex items-center justify-center">
                     <span class="material-symbols-outlined text-[22px]">payments</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Rekap Agregat Sirkulasi & Denda -->
+    <div class="grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-5">
+        <!-- Rekap Status Peminjaman -->
+        <div class="bg-surface-container-low rounded-2xl p-5 sm:p-6 shadow-sm flex flex-col gap-5">
+            <div class="flex flex-wrap items-start justify-between gap-3">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-9 h-9 rounded-lg bg-secondary-container text-on-secondary-fixed-variant flex items-center justify-center shadow-sm">
+                        <span class="material-symbols-outlined text-[20px]">donut_small</span>
+                    </div>
+                    <div>
+                        <h2 class="font-title-md text-title-md text-on-surface font-semibold">Rekap Status Peminjaman</h2>
+                        <p class="font-label-sm text-label-sm text-on-surface-variant">Distribusi seluruh transaksi sirkulasi</p>
+                    </div>
+                </div>
+                <span class="font-label-sm text-label-sm px-2.5 py-0.5 rounded-full bg-surface-container text-on-surface-variant font-semibold">
+                    {{ number_format($rekapPinjaman->sum(), 0, ',', '.') }} transaksi
+                </span>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                @foreach ([
+                    ['status' => \App\Models\Loan::STATUS_ACTIVE, 'label' => 'Sedang Dipinjam', 'icon' => 'chrome_reader_mode', 'tone' => 'bg-primary-fixed text-on-primary-fixed-variant'],
+                    ['status' => \App\Models\Loan::STATUS_COMPLETED, 'label' => 'Selesai', 'icon' => 'task_alt', 'tone' => 'bg-secondary-container text-on-secondary-fixed-variant'],
+                    ['status' => \App\Models\Loan::STATUS_CANCELLED, 'label' => 'Dibatalkan', 'icon' => 'cancel', 'tone' => 'bg-surface-container text-on-surface-variant'],
+                ] as $item)
+                    @php($jumlahPinjaman = (int) ($rekapPinjaman[$item['status']] ?? 0))
+                    <div class="rounded-xl bg-surface-container-lowest p-4 flex flex-col gap-3">
+                        <div class="flex items-center gap-2">
+                            <span class="w-7 h-7 rounded-lg {{ $item['tone'] }} flex items-center justify-center">
+                                <span class="material-symbols-outlined text-[16px]">{{ $item['icon'] }}</span>
+                            </span>
+                            <span class="font-label-sm text-label-sm text-on-surface-variant">{{ $item['label'] }}</span>
+                        </div>
+                        <span class="font-headline-md text-headline-md font-bold text-on-surface">{{ number_format($jumlahPinjaman, 0, ',', '.') }}</span>
+                    </div>
+                @endforeach
+            </div>
+        </div>
+
+        <!-- Rekap Status Denda -->
+        <div class="bg-surface-container-low rounded-2xl p-5 sm:p-6 shadow-sm flex flex-col gap-5">
+            <div class="flex flex-wrap items-start justify-between gap-3">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-9 h-9 rounded-lg bg-secondary-container text-on-secondary-fixed-variant flex items-center justify-center shadow-sm">
+                        <span class="material-symbols-outlined text-[20px]">payments</span>
+                    </div>
+                    <div>
+                        <h2 class="font-title-md text-title-md text-on-surface font-semibold">Rekap Status Denda</h2>
+                        <p class="font-label-sm text-label-sm text-on-surface-variant">Akumulasi denda berdasarkan status pembayaran</p>
+                    </div>
+                </div>
+                <span class="font-label-sm text-label-sm px-2.5 py-0.5 rounded-full bg-surface-container text-on-surface-variant font-semibold">
+                    Rp {{ number_format($stats['denda_belum_lunas'] + $stats['denda_lunas'], 0, ',', '.') }}
+                </span>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div class="rounded-xl bg-error-container/40 p-4 flex flex-col gap-2">
+                    <div class="flex items-center gap-2">
+                        <span class="w-7 h-7 rounded-lg bg-error-container text-on-error-container flex items-center justify-center">
+                            <span class="material-symbols-outlined text-[16px]">pending_actions</span>
+                        </span>
+                        <span class="font-label-sm text-label-sm text-on-surface-variant">Belum Lunas</span>
+                    </div>
+                    <p class="font-headline-md text-headline-md font-bold text-error">Rp {{ number_format($stats['denda_belum_lunas'], 0, ',', '.') }}</p>
+                    <p class="font-label-sm text-label-sm text-on-surface-variant">{{ number_format($stats['jumlah_denda_belum_lunas'], 0, ',', '.') }} denda belum dibayar</p>
+                </div>
+
+                <div class="rounded-xl bg-secondary-container/40 p-4 flex flex-col gap-2">
+                    <div class="flex items-center gap-2">
+                        <span class="w-7 h-7 rounded-lg bg-secondary-container text-on-secondary-fixed-variant flex items-center justify-center">
+                            <span class="material-symbols-outlined text-[16px]">verified</span>
+                        </span>
+                        <span class="font-label-sm text-label-sm text-on-surface-variant">Lunas</span>
+                    </div>
+                    <p class="font-headline-md text-headline-md font-bold text-on-surface">Rp {{ number_format($stats['denda_lunas'], 0, ',', '.') }}</p>
+                    <p class="font-label-sm text-label-sm text-on-surface-variant">{{ number_format($stats['jumlah_denda_lunas'], 0, ',', '.') }} denda sudah dibayar</p>
                 </div>
             </div>
         </div>
