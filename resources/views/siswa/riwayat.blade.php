@@ -62,7 +62,7 @@
                     <span class="material-symbols-outlined text-[22px]">library_books</span>
                 </div>
             </div>
-            <p class="font-label-sm text-label-sm text-on-surface-variant">{{ $stats['selesai'] }} selesai • {{ $stats['aktif'] }} masih dipinjam{{ $stats['dibatalkan'] > 0 ? ' • '.$stats['dibatalkan'].' dibatalkan' : '' }}</p>
+            <p class="font-label-sm text-label-sm text-on-surface-variant">{{ $stats['selesai'] }} selesai • {{ $stats['aktif'] }} masih dipinjam{{ $stats['menunggu'] > 0 ? ' • '.$stats['menunggu'].' menunggu persetujuan' : '' }}{{ $stats['dibatalkan'] > 0 ? ' • '.$stats['dibatalkan'].' dibatalkan' : '' }}</p>
         </div>
 
         <div class="p-5 rounded-xl bg-surface-container-low flex flex-col gap-4">
@@ -148,6 +148,8 @@
                             @php
                                 if ($r['status'] === 'dibatalkan') {
                                     $badge = ['bg-surface-container text-on-surface-variant', 'Dibatalkan'];
+                                } elseif ($r['status'] === 'menunggu') {
+                                    $badge = ['bg-[#FEF3C7] text-[#92400E]', 'Menunggu persetujuan'];
                                 } elseif ($r['status'] === 'dipinjam' && $r['denda'] > 0) {
                                     $badge = ['bg-error-container text-on-error-container', 'Terlambat'];
                                 } elseif ($r['denda'] > 0 && ! $r['denda_dibayar']) {

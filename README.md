@@ -283,7 +283,7 @@ Seeder membuat akun berikut. **Semua memakai password `password123` dan hanya un
 
 1. Login menggunakan identifier atau email.
 2. Masuk ke dashboard anggota.
-3. Buka **Katalog Buku**, cari buku, lalu gunakan tombol **Pinjamkan Kilat**.
+3. Buka **Katalog Buku**, cari buku, lalu gunakan tombol **Ajukan Pinjaman** — pengajuan menunggu persetujuan petugas sebelum buku bisa diambil.
 4. Pantau pinjaman aktif di **Pinjaman Saya**.
 5. Perpanjang pinjaman sebelum jatuh tempo bila perlu.
 6. Kembalikan buku ke petugas/pustakawan.
@@ -337,7 +337,7 @@ Agar dokumentasi sesuai kondisi kode saat ini:
 - Beberapa kartu metrik pada dashboard admin dan rekomendasi pada dashboard anggota masih memakai data contoh/statik dan perlu dihubungkan ke data operasional sebelum produksi.
 - Field `kelas` dan beberapa tanggal keanggotaan pada tampilan anggota masih menggunakan nilai default/placeholder.
 - Endpoint `GET /api/books` saat ini bersifat publik dan tidak memiliki pagination; tambahkan autentikasi dan rate limiting jika API akan dipakai secara luas.
-- Peminjaman mandiri anggota memeriksa kuota dan stok, tetapi aturan blokir pinjaman terlambat serta pencegahan meminjam judul yang sama saat ini baru ditegakkan pada alur peminjaman oleh staf.
+- Pengajuan pinjaman mandiri anggota dibuat dengan status `PENDING` dan menunggu persetujuan petugas; kuota, stok, pencegahan pinjaman ganda, dan blokir pinjaman terlambat ditegakkan ulang saat petugas menyetujui di halaman Peminjaman.
 - Backend belum membatasi jumlah atau periode perpanjangan pinjaman; saat ini pinjaman aktif dapat diperpanjang +7 hari selama belum dikembalikan.
 - Jangan commit `.env`. File `.env.example` idealnya hanya berisi placeholder, bukan kredensial database nyata.
 

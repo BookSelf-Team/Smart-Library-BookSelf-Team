@@ -268,4 +268,102 @@ class AdminCirculationTest extends TestCase
             ->assertSee('Dibatalkan')
             ->assertDontSee(route('admin.peminjaman.batal', $cancelled));
     }
+
+    public function test_staff_can_approve_pending_request_and_stock_is_decremented(): void
+    {
+        $petugas = User::factory()->petugas()->create();
+        $siswa = User::factory()->siswa()->create();
+        $book = Book::factory()->create(['jumlah_stok' => 2]);
+        $loan = Loan::factory()->pending()->create([
+            'user_id' => $siswa->id,
+            'book_id' => $book->id,
+        ]);
+
+        $this->actingAs($petugas)
+            ->patch(route('admin.peminjaman.setujui', $loan))
+            ->assertSessionHas('success');
+
+        $loan->refresh();
+        $this->assertSame(Loan::STATUS_ACTIVE, $loan->status);
+        $this->assertSame(now()->toDateString(), $loan->tanggal_pinjam->toDateString());
+        $this->assertSame(now()->addDays(7)->toDateString(), $loan->batas_kembali->toDateString());
+        $this->assertSame(1, $book->fresh()->jumlah_stok);
+    }
+
+    public function test_staff_can_reject_pending_request_without_touching_stock(): void
+    {
+        $petugas = User::factory()->petugas()->create();
+        $siswa = User::factory()->siswa()->create();
+        $book = Book::factory()->create(['jumlah_stok' => 2]);
+        $loan = Loan::factory()->pending()->create([
+            'user_id' => $siswa->id,
+            'book_id' => $book->id,
+        ]);
+
+        $this->actingAs($petugas)
+            ->patch(route('admin.peminjaman.tolak', $loan))
+            ->assertSessionHas('success');
+
+        $this->assertSame(Loan::STATUS_CANCELLED, $loan->fresh()->status);
+        $this->assertSame(2, $book->fresh()->jumlah_stok);
+    }
+
+    public function test_approving_the_same_pending_request_twice_fails(): void
+    {
+        $petugas = User::factory()->petugas()->create();
+        $book = Book::factory()->create(['jumlah_stok' => 2]);
+        $loan = Loan::factory()->pending()->create(['book_id' => $book->id]);
+
+        $this->actingAs($petugas)
+            ->patch(route('admin.peminjaman.setujui', $loan))
+            ->assertSessionHas('success');
+
+        $this->actingAs($petugas)
+            ->patch(route('admin.peminjaman.setujui', $loan))
+            ->assertSessionHas('error');
+
+        $this->assertSame(1, $book->fresh()->jumlah_stok);
+    }
+
+    public function test_member_cannot_approve_or_reject_pending_requests(): void
+    {
+        $siswa = User::factory()->siswa()->create();
+        $book = Book::factory()->create(['jumlah_stok' => 2]);
+        $loan = Loan::factory()->pending()->create(['book_id' => $book->id]);
+
+        $this->actingAs($siswa)
+            ->patch(route('admin.peminjaman.setujui', $loan))
+            ->assertForbidden();
+
+        $this->actingAs($siswa)
+            ->patch(route('admin.peminjaman.tolak', $loan))
+            ->assertForbidden();
+
+        $this->assertSame(Loan::STATUS_PENDING, $loan->fresh()->status);
+    }
+
+    public function test_pending_requests_are_not_listed_on_pengembalian_page(): void
+    {
+        $petugas = User::factory()->petugas()->create();
+        $book = Book::factory()->create(['judul' => 'Buku Masih Menunggu']);
+        Loan::factory()->pending()->create(['book_id' => $book->id]);
+
+        $this->actingAs($petugas)
+            ->get('/admin/pengembalian')
+            ->assertOk()
+            ->assertDontSee('Buku Masih Menunggu');
+    }
+
+    public function test_peminjaman_page_shows_approval_actions_for_pending_loans(): void
+    {
+        $petugas = User::factory()->petugas()->create();
+        $pending = Loan::factory()->pending()->create();
+
+        $this->actingAs($petugas)
+            ->get('/admin/peminjaman')
+            ->assertOk()
+            ->assertSee(route('admin.peminjaman.setujui', $pending))
+            ->assertSee(route('admin.peminjaman.tolak', $pending))
+            ->assertSee('Menunggu');
+    }
 }

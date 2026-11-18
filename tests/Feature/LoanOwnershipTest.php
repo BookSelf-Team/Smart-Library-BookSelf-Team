@@ -127,8 +127,53 @@ class LoanOwnershipTest extends TestCase
             'user_id' => $other->id,
         ])->assertRedirect(route('loans.index'));
 
-        $this->assertDatabaseHas('loans', ['user_id' => $user->id, 'book_id' => $book->id]);
+        $this->assertDatabaseHas('loans', [
+            'user_id' => $user->id,
+            'book_id' => $book->id,
+            'status' => Loan::STATUS_PENDING,
+        ]);
         $this->assertDatabaseMissing('loans', ['user_id' => $other->id]);
+        $this->assertSame(3, $book->fresh()->jumlah_stok);
+    }
+
+    public function test_member_cannot_submit_duplicate_request_for_same_book(): void
+    {
+        $user = User::factory()->siswa()->create();
+        $book = Book::factory()->create(['jumlah_stok' => 3]);
+
+        $this->actingAs($user)->post('/peminjaman/simpan', ['book_id' => $book->id])
+            ->assertRedirect();
+
+        $this->actingAs($user)->post('/peminjaman/simpan', ['book_id' => $book->id])
+            ->assertSessionHas('error');
+
+        $this->assertSame(1, Loan::query()->where('user_id', $user->id)->count());
+    }
+
+    public function test_pending_requests_count_toward_member_quota(): void
+    {
+        $user = User::factory()->siswa()->create();
+        Loan::factory()->count(3)->pending()->create(['user_id' => $user->id]);
+        $book = Book::factory()->create(['jumlah_stok' => 1]);
+
+        $this->actingAs($user)
+            ->post('/peminjaman/simpan', ['book_id' => $book->id])
+            ->assertSessionHas('error');
+
+        $this->assertSame(3, Loan::query()->where('user_id', $user->id)->count());
+    }
+
+    public function test_member_can_withdraw_own_pending_request(): void
+    {
+        $owner = User::factory()->siswa()->create();
+        $book = Book::factory()->create(['jumlah_stok' => 2]);
+        $loan = Loan::factory()->pending()->create(['user_id' => $owner->id, 'book_id' => $book->id]);
+
+        $this->actingAs($owner)
+            ->patch(route('siswa.pinjaman.batal', $loan))
+            ->assertSessionHas('success');
+
+        $this->assertSame(Loan::STATUS_CANCELLED, $loan->fresh()->status);
         $this->assertSame(2, $book->fresh()->jumlah_stok);
     }
 

@@ -17,6 +17,8 @@ class Loan extends Model
 
     public const STATUS_ACTIVE = 'ACTIVE';
 
+    public const STATUS_PENDING = 'PENDING';
+
     public const STATUS_COMPLETED = 'COMPLETED';
 
     public const STATUS_CANCELLED = 'CANCELLED';
@@ -50,7 +52,13 @@ class Loan extends Model
     protected function active(Builder $query): void
     {
         $query->whereNull('tanggal_dikembalikan')
-            ->where('status', '!=', self::STATUS_CANCELLED);
+            ->where('status', self::STATUS_ACTIVE);
+    }
+
+    #[Scope]
+    protected function pending(Builder $query): void
+    {
+        $query->where('status', self::STATUS_PENDING);
     }
 
     #[Scope]
@@ -60,11 +68,19 @@ class Loan extends Model
     }
 
     /**
-     * Pinjaman masih berjalan (belum dikembalikan dan tidak dibatalkan).
+     * Pinjaman masih berjalan (aktif, belum dikembalikan).
      */
     public function isActive(): bool
     {
-        return $this->tanggal_dikembalikan === null && $this->status !== self::STATUS_CANCELLED;
+        return $this->status === self::STATUS_ACTIVE && $this->tanggal_dikembalikan === null;
+    }
+
+    /**
+     * Pengajuan pinjaman anggota yang masih menunggu persetujuan petugas.
+     */
+    public function isPending(): bool
+    {
+        return $this->status === self::STATUS_PENDING && $this->tanggal_dikembalikan === null;
     }
 
     public function user(): BelongsTo

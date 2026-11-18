@@ -27,6 +27,14 @@ class LoanFactory extends Factory
         ];
     }
 
+    public function pending(): static
+    {
+        return $this->state(fn (array $attributes): array => [
+            'tanggal_dikembalikan' => null,
+            'status' => 'PENDING',
+        ]);
+    }
+
     public function returned(): static
     {
         return $this->state(fn (array $attributes): array => [

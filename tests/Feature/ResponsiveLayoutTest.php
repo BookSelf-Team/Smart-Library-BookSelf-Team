@@ -135,11 +135,11 @@ class ResponsiveLayoutTest extends TestCase
             // Menu siswa tidak boleh muncul bagi staf: tautannya hanya 403.
             $response->assertDontSee('Pinjaman Saya', false);
             $response->assertDontSee('href="'.url('siswa/dashboard').'"', false);
-            $response->assertDontSee('Pinjamkan Kilat', false);
+            $response->assertDontSee('Ajukan Pinjaman', false);
         }
     }
 
-    public function test_member_sees_siswa_sidebar_and_quick_borrow_on_katalog_page(): void
+    public function test_member_sees_siswa_sidebar_and_borrow_request_on_katalog_page(): void
     {
         $siswa = User::factory()->siswa()->create();
         Book::factory()->create(['jumlah_stok' => 3]);
@@ -150,7 +150,7 @@ class ResponsiveLayoutTest extends TestCase
         $response->assertSee('mobileMenuBtn', false);
         $response->assertDontSee('adminMobileMenuBtn', false);
         $response->assertSee('href="'.url('siswa/pinjaman').'"', false);
-        $response->assertSee('Pinjamkan Kilat', false);
+        $response->assertSee('Ajukan Pinjaman', false);
     }
 
     public function test_pages_render_motion_animations_with_reduced_motion_support(): void

@@ -110,8 +110,8 @@
                         <span class="material-symbols-outlined text-[22px]">pin_drop</span>
                     </div>
                     <div>
-                        <p class="font-title-sm text-title-sm text-on-surface">Ambil di meja sirkulasi</p>
-                        <p class="font-body-sm text-body-sm text-on-surface-variant">Tunjukkan Kartu Anggota atau ID peminjaman di meja petugas untuk meminjam buku ini.</p>
+                        <p class="font-title-sm text-title-sm text-on-surface">Ajukan di meja sirkulasi</p>
+                        <p class="font-body-sm text-body-sm text-on-surface-variant">Ajukan peminjaman di sini, lalu tunggu persetujuan petugas untuk mengambil buku di meja sirkulasi.</p>
                     </div>
                 </div>
 
@@ -124,8 +124,8 @@
                                        {{ $habis
                                             ? 'bg-surface-container text-outline cursor-not-allowed'
                                             : 'bg-primary-container text-on-primary-container hover:bg-primary hover:text-on-primary active:scale-[0.99]' }}">
-                            <span class="material-symbols-outlined text-[18px]">{{ $habis ? 'block' : 'sync_alt' }}</span>
-                            <span>{{ $habis ? 'Stok Habis' : 'Pinjamkan Kilat' }}</span>
+                            <span class="material-symbols-outlined text-[18px]">{{ $habis ? 'block' : 'send' }}</span>
+                            <span>{{ $habis ? 'Stok Habis' : 'Ajukan Pinjaman' }}</span>
                         </button>
                     </form>
                 @endif

@@ -7,7 +7,6 @@ use App\Models\Loan;
 use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 class LoanController extends Controller
 {
@@ -33,6 +32,9 @@ class LoanController extends Controller
 
     /**
      * S2-02 & S2-06: Alur Bisnis Utama Peminjaman Buku (End-to-End)
+     *
+     * Anggota hanya mengajukan peminjaman (status PENDING). Pinjaman
+     * baru menjadi aktif setelah disetujui petugas di sirkulasi.
      */
     public function store(Request $request): RedirectResponse
     {
@@ -42,33 +44,42 @@ class LoanController extends Controller
             'book_id' => ['required', 'exists:books,id'],
         ]);
 
-        return DB::transaction(function () use ($request) {
-            $aktif = Loan::query()
-                ->where('user_id', $request->user()->getKey())
-                ->active()
-                ->count();
+        $user = $request->user();
+        $book = Book::findOrFail($request->integer('book_id'));
 
-            if ($aktif >= self::KUOTA_PINJAM) {
-                return back()->with('error', 'Kuota pinjam Anda sudah penuh ('.self::KUOTA_PINJAM.' buku).');
-            }
+        $terisi = Loan::query()
+            ->where('user_id', $user->getKey())
+            ->whereNull('tanggal_dikembalikan')
+            ->whereIn('status', [Loan::STATUS_ACTIVE, Loan::STATUS_PENDING])
+            ->count();
 
-            $book = Book::lockForUpdate()->findOrFail($request->integer('book_id'));
+        if ($terisi >= self::KUOTA_PINJAM) {
+            return back()->with('error', 'Kuota pinjam Anda sudah penuh ('.self::KUOTA_PINJAM.' buku, termasuk pengajuan yang menunggu persetujuan).');
+        }
 
-            if ($book->jumlah_stok < 1) {
-                return back()->with('error', 'Maaf, stok buku ini sedang habis!');
-            }
+        $sudahAda = Loan::query()
+            ->where('user_id', $user->getKey())
+            ->where('book_id', $book->getKey())
+            ->whereNull('tanggal_dikembalikan')
+            ->whereIn('status', [Loan::STATUS_ACTIVE, Loan::STATUS_PENDING])
+            ->exists();
 
-            $loan = Loan::create([
-                'user_id' => $request->user()->getKey(),
-                'book_id' => $book->id,
-                'tanggal_pinjam' => Carbon::now(),
-                'batas_kembali' => Carbon::now()->addDays(7),
-                'status' => 'ACTIVE',
-            ]);
+        if ($sudahAda) {
+            return back()->with('error', 'Anda sudah memiliki pinjaman atau pengajuan untuk buku "'.$book->judul.'".');
+        }
 
-            $book->decrement('jumlah_stok');
+        if ($book->jumlah_stok < 1) {
+            return back()->with('error', 'Maaf, stok buku ini sedang habis!');
+        }
 
-            return redirect()->route('loans.index')->with('success', 'Peminjaman buku berhasil diajukan!');
-        });
+        Loan::create([
+            'user_id' => $user->getKey(),
+            'book_id' => $book->getKey(),
+            'tanggal_pinjam' => Carbon::today(),
+            'batas_kembali' => Carbon::today()->addDays(7),
+            'status' => Loan::STATUS_PENDING,
+        ]);
+
+        return redirect()->route('loans.index')->with('success', 'Pengajuan pinjaman "'.$book->judul.'" terkirim. Menunggu persetujuan petugas perpustakaan.');
     }
 }

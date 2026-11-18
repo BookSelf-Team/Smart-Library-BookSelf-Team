@@ -73,6 +73,8 @@ Route::middleware(['auth', 'role:admin,pustakawan,petugas', 'can:circulate'])->g
 
     Route::get('/admin/peminjaman', [PeminjamanController::class, 'index'])->name('admin.peminjaman');
     Route::post('/admin/peminjaman', [PeminjamanController::class, 'store'])->name('admin.peminjaman.store');
+    Route::patch('/admin/peminjaman/{loan}/setujui', [PeminjamanController::class, 'setujui'])->name('admin.peminjaman.setujui');
+    Route::patch('/admin/peminjaman/{loan}/tolak', [PeminjamanController::class, 'tolak'])->name('admin.peminjaman.tolak');
     Route::patch('/admin/peminjaman/{loan}/batal', [PeminjamanController::class, 'batal'])->name('admin.peminjaman.batal');
 
     Route::get('/admin/pengembalian', [PengembalianController::class, 'index'])->name('admin.pengembalian');

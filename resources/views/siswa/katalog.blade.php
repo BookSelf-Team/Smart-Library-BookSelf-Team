@@ -29,7 +29,7 @@
                 Jelajahi <span class="text-primary italic">Katalog Buku</span>
             </h1>
             <p class="font-body-md text-body-md text-on-surface-variant max-w-2xl">
-                Cari judul atau pengarang melalui kolom pencarian di atas, lalu pinjam langsung dari kartu buku yang tersedia.
+                Cari judul atau pengarang melalui kolom pencarian di atas, lalu ajukan peminjaman langsung dari kartu buku yang tersedia.
             </p>
         </div>
 
@@ -103,8 +103,8 @@
                                        {{ $habis
                                             ? 'bg-surface-container text-outline cursor-not-allowed'
                                             : 'bg-primary-container text-on-primary-container hover:bg-primary hover:text-on-primary active:scale-[0.99]' }}">
-                            <span class="material-symbols-outlined text-[17px]">{{ $habis ? 'block' : 'sync_alt' }}</span>
-                            <span>{{ $habis ? 'Stok Habis' : 'Pinjamkan Kilat' }}</span>
+                            <span class="material-symbols-outlined text-[17px]">{{ $habis ? 'block' : 'send' }}</span>
+                            <span>{{ $habis ? 'Stok Habis' : 'Ajukan Pinjaman' }}</span>
                         </button>
                     </form>
                 @endif

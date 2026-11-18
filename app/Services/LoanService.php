@@ -60,6 +60,33 @@ class LoanService
     }
 
     /**
+     * Tolak pengajuan pinjaman yang masih menunggu persetujuan.
+     * Stok buku tidak berubah karena pinjaman belum pernah diaktifkan.
+     *
+     * @return array{judul: string, anggota: string}|null
+     */
+    public function reject(Loan $loan): ?array
+    {
+        return DB::transaction(function () use ($loan): ?array {
+            $loan = Loan::query()
+                ->with(['book', 'user'])
+                ->lockForUpdate()
+                ->find($loan->getKey());
+
+            if ($loan === null || ! $loan->isPending()) {
+                return null;
+            }
+
+            $loan->update(['status' => Loan::STATUS_CANCELLED]);
+
+            return [
+                'judul' => $loan->book?->judul ?? 'buku',
+                'anggota' => $loan->user?->name ?? 'anggota',
+            ];
+        });
+    }
+
+    /**
      * Batalkan pinjaman aktif dan kembalikan stok buku.
      *
      * @return array{judul: string, anggota: string}|null

@@ -25,7 +25,7 @@ class EdgeCaseTest extends TestCase
         $this->assertDatabaseMissing('loans', ['book_id' => $book->id]);
     }
 
-    public function test_stock_decrements_on_borrow(): void
+    public function test_borrow_request_creates_pending_loan_without_touching_stock(): void
     {
         $siswa = User::factory()->siswa()->create();
         $book = Book::factory()->create(['jumlah_stok' => 5]);
@@ -33,6 +33,31 @@ class EdgeCaseTest extends TestCase
         $this->actingAs($siswa)->post('/peminjaman/simpan', ['book_id' => $book->id])
             ->assertRedirect();
 
+        $this->assertDatabaseHas('loans', [
+            'user_id' => $siswa->id,
+            'book_id' => $book->id,
+            'status' => Loan::STATUS_PENDING,
+        ]);
+        $this->assertSame(5, $book->fresh()->jumlah_stok);
+    }
+
+    public function test_approving_pending_request_activates_loan_and_decrements_stock(): void
+    {
+        $petugas = User::factory()->petugas()->create();
+        $siswa = User::factory()->siswa()->create();
+        $book = Book::factory()->create(['jumlah_stok' => 5]);
+        $loan = Loan::factory()->pending()->create([
+            'user_id' => $siswa->id,
+            'book_id' => $book->id,
+        ]);
+
+        $this->actingAs($petugas)->patch(route('admin.peminjaman.setujui', $loan))
+            ->assertSessionHas('success');
+
+        $loan->refresh();
+        $this->assertSame(Loan::STATUS_ACTIVE, $loan->status);
+        $this->assertSame(now()->toDateString(), $loan->tanggal_pinjam->toDateString());
+        $this->assertSame(now()->addDays(7)->toDateString(), $loan->batas_kembali->toDateString());
         $this->assertSame(4, $book->fresh()->jumlah_stok);
     }
 
@@ -77,8 +102,11 @@ class EdgeCaseTest extends TestCase
         $this->actingAs($guru)->post('/peminjaman/simpan', ['book_id' => $book->id])
             ->assertRedirect();
 
-        $this->assertDatabaseHas('loans', ['user_id' => $guru->id]);
-        $this->assertSame(1, $book->fresh()->jumlah_stok);
+        $this->assertDatabaseHas('loans', [
+            'user_id' => $guru->id,
+            'status' => Loan::STATUS_PENDING,
+        ]);
+        $this->assertSame(2, $book->fresh()->jumlah_stok);
     }
 
     public function test_pengguna_treated_as_member_for_circulation(): void
@@ -89,8 +117,11 @@ class EdgeCaseTest extends TestCase
         $this->actingAs($pengguna)->post('/peminjaman/simpan', ['book_id' => $book->id])
             ->assertRedirect();
 
-        $this->assertDatabaseHas('loans', ['user_id' => $pengguna->id]);
-        $this->assertSame(1, $book->fresh()->jumlah_stok);
+        $this->assertDatabaseHas('loans', [
+            'user_id' => $pengguna->id,
+            'status' => Loan::STATUS_PENDING,
+        ]);
+        $this->assertSame(2, $book->fresh()->jumlah_stok);
     }
 
     public function test_admin_cannot_use_member_borrow_endpoint(): void
@@ -104,18 +135,33 @@ class EdgeCaseTest extends TestCase
         $this->assertSame(1, $book->fresh()->jumlah_stok);
     }
 
-    public function test_multiple_simultaneous_borrows_do_not_exceed_stock(): void
+    public function test_last_copy_can_only_be_approved_to_one_member(): void
     {
+        $petugas = User::factory()->petugas()->create();
         $siswa1 = User::factory()->siswa()->create();
         $siswa2 = User::factory()->siswa()->create();
         $book = Book::factory()->create(['jumlah_stok' => 1]);
 
+        // Kedua anggota boleh mengajukan karena stok baru dipotong saat persetujuan.
         $this->actingAs($siswa1)->post('/peminjaman/simpan', ['book_id' => $book->id])
             ->assertRedirect();
-
         $this->actingAs($siswa2)->post('/peminjaman/simpan', ['book_id' => $book->id])
+            ->assertRedirect();
+
+        $loan1 = Loan::query()->where('user_id', $siswa1->id)->sole();
+        $loan2 = Loan::query()->where('user_id', $siswa2->id)->sole();
+
+        $this->actingAs($petugas)->patch(route('admin.peminjaman.setujui', $loan1))
+            ->assertSessionHas('success');
+
+        $this->assertSame(Loan::STATUS_ACTIVE, $loan1->fresh()->status);
+        $this->assertSame(0, $book->fresh()->jumlah_stok);
+
+        // Pengajuan kedua gagal disetujui karena stok sudah habis.
+        $this->actingAs($petugas)->patch(route('admin.peminjaman.setujui', $loan2))
             ->assertSessionHas('error');
 
+        $this->assertSame(Loan::STATUS_PENDING, $loan2->fresh()->status);
         $this->assertSame(0, $book->fresh()->jumlah_stok);
     }
 

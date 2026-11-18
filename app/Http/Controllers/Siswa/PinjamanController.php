@@ -20,7 +20,8 @@ class PinjamanController extends Controller
     private const LAMA_PINJAM_HARI = 7;
 
     /**
-     * Halaman "Pinjaman Saya" — daftar buku yang sedang dipinjam.
+     * Halaman "Pinjaman Saya" — daftar buku yang sedang dipinjam
+     * beserta pengajuan yang masih menunggu persetujuan petugas.
      */
     public function index(Request $request): View
     {
@@ -31,6 +32,7 @@ class PinjamanController extends Controller
         $siswa = $this->siswa($user);
 
         $loans = $this->activeLoans($user);
+        $pending = $this->pendingLoans($user);
 
         $today = Carbon::today();
         $dendaPerHari = Setting::dendaPerHari();
@@ -39,8 +41,9 @@ class PinjamanController extends Controller
 
         $stats = [
             'aktif' => $loans->count(),
+            'menunggu' => $pending->count(),
             'kuota' => self::KUOTA_PINJAM,
-            'sisa_kuota' => max(0, self::KUOTA_PINJAM - $loans->count()),
+            'sisa_kuota' => max(0, self::KUOTA_PINJAM - $loans->count() - $pending->count()),
             'terdekat_hari' => $terdekat ? $sisaHari($terdekat) : null,
             'terdekat_judul' => $terdekat['title'] ?? null,
             'denda' => $loans->sum(fn ($l) => max(0, -$sisaHari($l)) * $dendaPerHari),
@@ -66,7 +69,7 @@ class PinjamanController extends Controller
             }
         }
 
-        return view('siswa.pinjaman', compact('siswa', 'loans', 'stats', 'notifications', 'dendaPerHari'));
+        return view('siswa.pinjaman', compact('siswa', 'loans', 'pending', 'stats', 'notifications', 'dendaPerHari'));
     }
 
     /**
@@ -89,7 +92,7 @@ class PinjamanController extends Controller
         $dendaPerHari = Setting::dendaPerHari();
 
         $riwayat = $semua->filter(fn ($r) => match ($filter) {
-            'aktif' => $r['status'] === 'dipinjam',
+            'aktif' => $r['status'] === 'dipinjam' || $r['status'] === 'menunggu',
             'terlambat' => $r['denda'] > 0 && ! $r['denda_dibayar'],
             'lunas' => $r['denda'] > 0 && $r['denda_dibayar'],
             default => true,
@@ -99,6 +102,7 @@ class PinjamanController extends Controller
             'total' => $semua->count(),
             'selesai' => $semua->where('status', 'selesai')->count(),
             'aktif' => $semua->where('status', 'dipinjam')->count(),
+            'menunggu' => $semua->where('status', 'menunggu')->count(),
             'dibatalkan' => $semua->where('status', 'dibatalkan')->count(),
             'terlambat' => $semua->filter(fn ($r) => $r['denda'] > 0)->count(),
             'denda_total' => $semua->sum('denda'),
@@ -145,13 +149,13 @@ class PinjamanController extends Controller
     }
 
     /**
-     * Batalkan pinjaman milik sendiri dan kembalikan stok buku.
+     * Batalkan pinjaman atau tarik pengajuan milik sendiri.
      */
     public function batal(Loan $loan, LoanService $service): RedirectResponse
     {
         $this->authorize('cancel', $loan);
 
-        $hasil = $service->cancel($loan);
+        $hasil = $loan->isPending() ? $service->reject($loan) : $service->cancel($loan);
 
         if ($hasil === null) {
             return back()->with('error', 'Pinjaman ini sudah selesai atau dibatalkan sebelumnya.');
@@ -193,6 +197,28 @@ class PinjamanController extends Controller
     }
 
     /**
+     * Daftar pengajuan pinjaman milik pengguna yang masih menunggu
+     * persetujuan petugas.
+     *
+     * @return Collection<int, array<string, mixed>>
+     */
+    private function pendingLoans(User $user): Collection
+    {
+        return Loan::query()
+            ->with('book')
+            ->where('user_id', $user->getKey())
+            ->pending()
+            ->orderByDesc('id')
+            ->get()
+            ->map(fn (Loan $loan): array => [
+                'id' => $loan->getKey(),
+                'title' => $loan->book?->judul ?? 'Buku tidak diketahui',
+                'author' => $loan->book?->pengarang ?? '-',
+                'tgl_ajuan' => $loan->tanggal_pinjam,
+            ]);
+    }
+
+    /**
      * Riwayat peminjaman milik pengguna yang sedang login.
      *
      * @return Collection<int, array<string, mixed>>
@@ -214,8 +240,9 @@ class PinjamanController extends Controller
                 );
 
                 $dibatalkan = $loan->status === Loan::STATUS_CANCELLED;
+                $menunggu = $loan->isPending();
                 $tglKembali = $loan->tanggal_dikembalikan;
-                $overdueHari = $tglKembali === null && ! $dibatalkan
+                $overdueHari = $tglKembali === null && ! $dibatalkan && ! $menunggu
                     ? max(0, (int) $loan->batas_kembali->copy()->startOfDay()->diffInDays(Carbon::today(), false))
                     : 0;
                 $denda = $dendaTercatat > 0 ? $dendaTercatat : $overdueHari * $dendaPerHari;
@@ -225,7 +252,7 @@ class PinjamanController extends Controller
                     'fine_id' => $loan->fines->first()?->id,
                     'title' => $loan->book?->judul ?? 'Buku tidak diketahui',
                     'author' => $loan->book?->pengarang ?? '-',
-                    'status' => $dibatalkan ? 'dibatalkan' : ($tglKembali ? 'selesai' : 'dipinjam'),
+                    'status' => $dibatalkan ? 'dibatalkan' : ($menunggu ? 'menunggu' : ($tglKembali ? 'selesai' : 'dipinjam')),
                     'tgl_pinjam' => $loan->tanggal_pinjam,
                     'tgl_kembali' => $tglKembali,
                     'hari' => (int) $loan->tanggal_pinjam->diffInDays($tglKembali ?? Carbon::today()),

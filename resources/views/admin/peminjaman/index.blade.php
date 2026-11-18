@@ -40,8 +40,9 @@
                 <tbody class="bg-surface divide-y divide-surface-container-highest">
                     @forelse ($loans as $l)
                         @php
+                            $pending = $l->status === \App\Models\Loan::STATUS_PENDING;
                             $dibatalkan = $l->status === \App\Models\Loan::STATUS_CANCELLED;
-                            $aktif = ! $dibatalkan && $l->tanggal_dikembalikan === null;
+                            $aktif = ! $pending && ! $dibatalkan && $l->tanggal_dikembalikan === null;
                             $telat = $aktif && $l->batas_kembali?->isPast();
                         @endphp
                         <tr class="hover:bg-surface-container-low/60">
@@ -55,7 +56,11 @@
                                 {{ $l->batas_kembali?->translatedFormat('d M Y') }}
                             </td>
                             <td class="px-4 py-3 text-center whitespace-nowrap">
-                                @if ($dibatalkan)
+                                @if ($pending)
+                                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#FEF3C7] text-[#92400E] font-label-sm font-semibold">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-[#D97706]"></span> Menunggu
+                                    </span>
+                                @elseif ($dibatalkan)
                                     <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-surface-container text-on-surface-variant font-label-sm">Dibatalkan</span>
                                 @elseif (! $aktif)
                                     <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-secondary-container text-on-secondary-fixed-variant font-label-sm">Selesai</span>
@@ -69,7 +74,24 @@
                             </td>
                             <td class="px-4 py-3 text-right whitespace-nowrap">
                                 <div class="flex flex-wrap items-center justify-end gap-1.5">
-                                    @if ($aktif)
+                                    @if ($pending)
+                                        <form method="POST" action="{{ route('admin.peminjaman.setujui', $l->id) }}" onsubmit="return confirm('Setujui pengajuan ini? Stok buku akan dikurangi.')">
+                                            @csrf
+                                            @method('PATCH')
+                                            <button type="submit" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-semibold bg-primary-container text-on-primary-container hover:bg-primary hover:text-on-primary transition-colors" title="Setujui pengajuan">
+                                                <span class="material-symbols-outlined text-[16px]">check_circle</span>
+                                                <span>Setujui</span>
+                                            </button>
+                                        </form>
+                                        <form method="POST" action="{{ route('admin.peminjaman.tolak', $l->id) }}" onsubmit="return confirm('Tolak pengajuan ini?')">
+                                            @csrf
+                                            @method('PATCH')
+                                            <button type="submit" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-semibold bg-error-container text-on-error-container hover:bg-error hover:text-on-error transition-colors" title="Tolak pengajuan">
+                                                <span class="material-symbols-outlined text-[16px]">cancel</span>
+                                                <span>Tolak</span>
+                                            </button>
+                                        </form>
+                                    @elseif ($aktif)
                                         <form method="POST" action="{{ route('admin.pengembalian.proses', $l->id) }}" onsubmit="return confirm('Selesaikan peminjaman ini? Buku akan ditandai sudah dikembalikan.')">
                                             @csrf
                                             @method('PATCH')

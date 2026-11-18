@@ -28,6 +28,7 @@ class PeminjamanController extends Controller
         $this->authorize('viewAny', Loan::class);
 
         $loans = Loan::with(['user', 'book'])
+            ->orderByRaw('CASE WHEN status = ? THEN 0 ELSE 1 END', [Loan::STATUS_PENDING])
             ->orderByDesc('tanggal_pinjam')
             ->orderByDesc('id')
             ->paginate(15);
@@ -55,46 +56,13 @@ class PeminjamanController extends Controller
         ]);
 
         return DB::transaction(function () use ($validated) {
-            // Lock baris user agar kuota dan pinjaman ganda tidak bisa lolos
-            // saat ada dua permintaan bersamaan untuk anggota yang sama.
+            // Lock baris user dan buku agar kuota dan stok tidak bisa
+            // dilanggar saat ada dua permintaan bersamaan.
             $user = User::query()->lockForUpdate()->findOrFail($validated['user_id']);
-
-            if (! $user->isMember()) {
-                return back()->with('error', 'Peminjaman hanya bisa diproses untuk akun anggota (siswa, guru, atau pengguna).')->withInput();
-            }
-
-            $aktif = Loan::query()
-                ->where('user_id', $user->getKey())
-                ->active()
-                ->count();
-
-            if ($aktif >= self::KUOTA_PINJAM) {
-                return back()->with('error', "Kuota pinjam {$user->name} sudah penuh ({$aktif}/".self::KUOTA_PINJAM.').')->withInput();
-            }
-
-            $terlambat = Loan::query()
-                ->where('user_id', $user->getKey())
-                ->overdue()
-                ->count();
-
-            if ($terlambat > 0) {
-                return back()->with('error', "{$user->name} masih memiliki {$terlambat} pinjaman terlambat. Proses pengembaliannya terlebih dahulu.")->withInput();
-            }
-
             $book = Book::query()->lockForUpdate()->findOrFail($validated['book_id']);
 
-            if ($book->jumlah_stok < 1) {
-                return back()->with('error', 'Stok buku "'.$book->judul.'" sedang habis.')->withInput();
-            }
-
-            $sudahDipinjam = Loan::query()
-                ->where('user_id', $user->getKey())
-                ->where('book_id', $book->getKey())
-                ->active()
-                ->exists();
-
-            if ($sudahDipinjam) {
-                return back()->with('error', $user->name.' masih meminjam "'.$book->judul.'". Buku yang sama belum dikembalikan.')->withInput();
+            if ($error = $this->errorKelayakan($user, $book)) {
+                return back()->with('error', $error)->withInput();
             }
 
             $tanggalPinjam = Carbon::today();
@@ -115,6 +83,59 @@ class PeminjamanController extends Controller
     }
 
     /**
+     * Setujui pengajuan pinjaman anggota: aktifkan pinjaman,
+     * hitung ulang tanggal pinjam/jatuh tempo, dan potong stok.
+     */
+    public function setujui(Loan $loan): RedirectResponse
+    {
+        $this->authorize('approve', $loan);
+
+        return DB::transaction(function () use ($loan) {
+            $loan = Loan::query()->lockForUpdate()->findOrFail($loan->getKey());
+
+            if (! $loan->isPending()) {
+                return back()->with('error', 'Pengajuan ini sudah diproses sebelumnya.');
+            }
+
+            $user = User::query()->lockForUpdate()->findOrFail($loan->user_id);
+            $book = Book::query()->lockForUpdate()->findOrFail($loan->book_id);
+
+            if ($error = $this->errorKelayakan($user, $book)) {
+                return back()->with('error', 'Pengajuan "'.$book->judul.'" tidak dapat disetujui: '.$error);
+            }
+
+            $tanggalPinjam = Carbon::today();
+            $batasKembali = $tanggalPinjam->copy()->addDays(self::LAMA_PINJAM_HARI);
+
+            $loan->update([
+                'status' => Loan::STATUS_ACTIVE,
+                'tanggal_pinjam' => $tanggalPinjam,
+                'batas_kembali' => $batasKembali,
+            ]);
+
+            $book->decrement('jumlah_stok');
+
+            return back()->with('success', 'Pengajuan pinjaman "'.$book->judul.'" atas nama '.$user->name.' disetujui. Jatuh tempo '.$batasKembali->translatedFormat('d M Y').'.');
+        });
+    }
+
+    /**
+     * Tolak pengajuan pinjaman yang masih menunggu persetujuan.
+     */
+    public function tolak(Loan $loan, LoanService $service): RedirectResponse
+    {
+        $this->authorize('reject', $loan);
+
+        $hasil = $service->reject($loan);
+
+        if ($hasil === null) {
+            return back()->with('error', 'Pengajuan ini sudah diproses sebelumnya.');
+        }
+
+        return back()->with('success', 'Pengajuan pinjaman "'.$hasil['judul'].'" atas nama '.$hasil['anggota'].' ditolak.');
+    }
+
+    /**
      * Batalkan pinjaman yang masih aktif dan kembalikan stok buku.
      */
     public function batal(Loan $loan, LoanService $service): RedirectResponse
@@ -128,5 +149,50 @@ class PeminjamanController extends Controller
         }
 
         return back()->with('success', 'Peminjaman "'.$hasil['judul'].'" atas nama '.$hasil['anggota'].' dibatalkan. Stok buku sudah dikembalikan.');
+    }
+
+    /**
+     * Periksa kelayakan peminjaman untuk seorang anggota.
+     * Mengembalikan pesan error atau null bila pinjaman boleh diproses.
+     */
+    private function errorKelayakan(User $user, Book $book): ?string
+    {
+        if (! $user->isMember()) {
+            return 'Peminjaman hanya bisa diproses untuk akun anggota (siswa, guru, atau pengguna).';
+        }
+
+        $aktif = Loan::query()
+            ->where('user_id', $user->getKey())
+            ->active()
+            ->count();
+
+        if ($aktif >= self::KUOTA_PINJAM) {
+            return "Kuota pinjam {$user->name} sudah penuh ({$aktif}/".self::KUOTA_PINJAM.').';
+        }
+
+        $terlambat = Loan::query()
+            ->where('user_id', $user->getKey())
+            ->overdue()
+            ->count();
+
+        if ($terlambat > 0) {
+            return "{$user->name} masih memiliki {$terlambat} pinjaman terlambat. Proses pengembaliannya terlebih dahulu.";
+        }
+
+        if ($book->jumlah_stok < 1) {
+            return 'Stok buku "'.$book->judul.'" sedang habis.';
+        }
+
+        $sudahDipinjam = Loan::query()
+            ->where('user_id', $user->getKey())
+            ->where('book_id', $book->getKey())
+            ->active()
+            ->exists();
+
+        if ($sudahDipinjam) {
+            return $user->name.' masih meminjam "'.$book->judul.'". Buku yang sama belum dikembalikan.';
+        }
+
+        return null;
     }
 }

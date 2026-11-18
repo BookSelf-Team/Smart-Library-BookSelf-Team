@@ -41,7 +41,7 @@
             <div class="flex items-center gap-3 flex-wrap">
                 <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-secondary-container text-on-secondary-fixed-variant font-label-sm text-label-sm">
                     <span class="w-1.5 h-1.5 rounded-full bg-primary animate-ping"></span>
-                    {{ $stats['aktif'] }} pinjaman aktif • Kuota {{ $stats['kuota'] }} buku
+                    {{ $stats['aktif'] }} pinjaman aktif • Kuota {{ $stats['kuota'] }} buku{{ $stats['menunggu'] > 0 ? ' • '.$stats['menunggu'].' menunggu persetujuan' : '' }}
                 </span>
                 <span class="font-label-sm text-label-sm text-on-surface-variant flex items-center gap-1">
                     <span class="material-symbols-outlined text-[16px]">calendar_month</span>
@@ -151,6 +151,30 @@
                 </div>
                 <span class="font-label-md text-label-md text-on-surface-variant">{{ $stats['aktif'] }} buku</span>
             </div>
+
+            @if ($pending->isNotEmpty())
+                <div class="rounded-xl bg-[#FEF3C7]/60 border border-[#FDE68A] p-4 flex flex-col gap-3">
+                    <div class="flex items-center gap-2">
+                        <span class="material-symbols-outlined text-[20px] text-[#92400E]">hourglass_top</span>
+                        <h3 class="font-title-sm text-title-sm text-[#92400E]">Menunggu Persetujuan Petugas ({{ $pending->count() }})</h3>
+                    </div>
+                    <ul class="flex flex-col gap-2">
+                        @foreach ($pending as $p)
+                            <li class="flex items-center justify-between gap-3 p-3 rounded-lg bg-surface-container-lowest">
+                                <div class="min-w-0">
+                                    <p class="font-title-sm text-title-sm text-on-surface truncate">{{ $p['title'] }}</p>
+                                    <p class="font-body-sm text-body-sm text-on-surface-variant">{{ $p['author'] }} • Diajukan {{ $p['tgl_ajuan']->translatedFormat('d M Y') }}</p>
+                                </div>
+                                <form method="POST" action="{{ route('siswa.pinjaman.batal', $p['id']) }}" onsubmit="return confirm('Tarik pengajuan pinjaman ini?')" class="shrink-0">
+                                    @csrf
+                                    @method('PATCH')
+                                    <button type="submit" class="px-2.5 py-1.5 rounded-lg border border-outline-variant text-on-surface-variant hover:text-error hover:border-error font-label-md text-xs whitespace-nowrap transition-colors">Tarik</button>
+                                </form>
+                            </li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
 
             <div class="rounded-xl bg-surface-container-lowest overflow-x-auto">
                 <table class="w-full text-left">

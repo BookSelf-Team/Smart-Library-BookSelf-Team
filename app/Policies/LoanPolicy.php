@@ -26,6 +26,16 @@ class LoanPolicy
         return $user->isMember() || $user->canCirculate();
     }
 
+    public function approve(User $user, Loan $loan): bool
+    {
+        return $user->canCirculate();
+    }
+
+    public function reject(User $user, Loan $loan): bool
+    {
+        return $user->canCirculate();
+    }
+
     public function returnBook(User $user, Loan $loan): bool
     {
         if ($user->canCirculate()) {
