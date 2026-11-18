@@ -159,8 +159,9 @@ class LoanOwnershipTest extends TestCase
             ->get('/siswa/dashboard')
             ->assertOk()
             ->assertSee('Buku Milik Sendiri')
-            ->assertSee(route('siswa.pinjaman.perpanjang', $ownLoan))
-            ->assertDontSee(route('siswa.pinjaman.perpanjang', $otherLoan));
+            ->assertSee(route('invoices.loan', $ownLoan))
+            ->assertDontSee(route('invoices.loan', $otherLoan))
+            ->assertDontSee(route('siswa.pinjaman.perpanjang', $ownLoan));
     }
 
     public function test_member_loan_and_history_pages_only_show_own_loans(): void
@@ -271,7 +272,7 @@ class LoanOwnershipTest extends TestCase
         $this->assertSame(1, $book->fresh()->jumlah_stok);
     }
 
-    public function test_pinjaman_page_shows_selesai_and_batal_actions_for_own_loan(): void
+    public function test_pinjaman_page_only_shows_receipt_action_for_own_loan(): void
     {
         $owner = User::factory()->siswa()->create();
         $loan = Loan::factory()->create(['user_id' => $owner->id]);
@@ -279,8 +280,10 @@ class LoanOwnershipTest extends TestCase
         $this->actingAs($owner)
             ->get('/siswa/pinjaman')
             ->assertOk()
-            ->assertSee(route('siswa.pinjaman.selesai', $loan))
-            ->assertSee(route('siswa.pinjaman.batal', $loan));
+            ->assertSee(route('invoices.loan', $loan))
+            ->assertDontSee(route('siswa.pinjaman.perpanjang', $loan))
+            ->assertDontSee(route('siswa.pinjaman.selesai', $loan))
+            ->assertDontSee(route('siswa.pinjaman.batal', $loan));
     }
 
     public function test_cancelled_loan_is_not_listed_on_the_active_loans_page(): void

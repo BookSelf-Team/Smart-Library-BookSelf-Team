@@ -171,14 +171,10 @@
                                     <span class="inline-flex px-2.5 py-0.5 rounded-full font-label-sm text-label-sm font-semibold whitespace-nowrap {{ $badge[0] }}">{{ $badge[1] }}</span>
                                 </td>
                                 <td class="px-4 py-3 text-right">
-                                    @if ($sisa < 0)
-                                        <span class="font-label-sm text-label-sm text-on-surface-variant">Kembalikan ke petugas</span>
-                                    @else
-                                        <form method="POST" action="{{ url('siswa/pinjaman/'.$loan['id'].'/perpanjang') }}">
-                                            @csrf
-                                            <button type="submit" class="px-3 py-1.5 rounded-lg border border-outline-variant text-on-surface font-label-md text-label-md hover:bg-surface-container transition-colors whitespace-nowrap">Perpanjang +7 Hari</button>
-                                        </form>
-                                    @endif
+                                    <a href="{{ route('invoices.loan', $loan['id']) }}" target="_blank" class="px-2.5 py-1.5 rounded-lg border border-outline-variant text-on-surface hover:text-primary hover:border-primary font-label-md text-xs inline-flex items-center gap-1 transition-colors whitespace-nowrap" title="Cetak Bukti Peminjaman">
+                                        <span class="material-symbols-outlined text-[16px]">receipt_long</span>
+                                        <span>Bukti Pinjam</span>
+                                    </a>
                                 </td>
                             </tr>
                         @empty
